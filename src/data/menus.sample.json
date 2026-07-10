@@ -1,0 +1,173 @@
+{
+  "collectedAt": "2026-01-01T00:00:00.000Z",
+  "menus": [
+    { "nodeId": "m_mouse", "title": "마우스 제품 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_mouse_spec", "title": "스펙 관리", "parentId": "m_mouse", "restricted": false, "scopeRefs": ["p_mouse_view", "p_mouse_edit", "p_mouse_switch_approve", "p_mouse_sensor_edit"] },
+    { "nodeId": "m_mouse_firmware", "title": "펌웨어 관리", "parentId": "m_mouse", "restricted": false, "scopeRefs": ["p_mouse_fw_view", "p_mouse_fw_download"] },
+    { "nodeId": "m_mouse_inventory", "title": "재고 관리", "parentId": "m_mouse", "restricted": false, "scopeRefs": ["p_inventory_view", "p_inventory_edit"] },
+    { "nodeId": "m_mouse_packaging", "title": "패키징 관리", "parentId": "m_mouse", "restricted": false, "scopeRefs": ["p_packaging_view", "p_packaging_edit"] },
+
+    { "nodeId": "m_keyboard", "title": "키보드 제품 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_kb_spec", "title": "스펙 관리", "parentId": "m_keyboard", "restricted": false, "scopeRefs": ["p_kb_view", "p_kb_edit", "p_kb_rt_config", "p_kb_hotswap_edit"] },
+    { "nodeId": "m_kb_firmware", "title": "펌웨어 관리", "parentId": "m_keyboard", "restricted": false, "scopeRefs": ["p_kb_fw_view", "p_kb_fw_download"] },
+    { "nodeId": "m_kb_inventory", "title": "재고 관리", "parentId": "m_keyboard", "restricted": false, "scopeRefs": ["p_inventory_view", "p_inventory_edit"] },
+    { "nodeId": "m_kb_keycap", "title": "키캡 세트 관리", "parentId": "m_keyboard", "restricted": false, "scopeRefs": ["p_keycap_view", "p_keycap_edit"] },
+
+    { "nodeId": "m_headset", "title": "헤드셋 제품 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_headset_spec", "title": "스펙 관리", "parentId": "m_headset", "restricted": false, "scopeRefs": ["p_headset_view", "p_headset_edit"] },
+    { "nodeId": "m_headset_firmware", "title": "펌웨어 관리", "parentId": "m_headset", "restricted": false, "scopeRefs": ["p_headset_fw_view", "p_headset_fw_download"] },
+    { "nodeId": "m_headset_inventory", "title": "재고 관리", "parentId": "m_headset", "restricted": false, "scopeRefs": ["p_inventory_view", "p_inventory_edit"] },
+
+    { "nodeId": "m_webcam", "title": "웹캠 제품 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_webcam_spec", "title": "스펙 관리", "parentId": "m_webcam", "restricted": false, "scopeRefs": ["p_webcam_view", "p_webcam_edit", "p_webcam_focus_calibrate"] },
+    { "nodeId": "m_webcam_firmware", "title": "펌웨어 관리", "parentId": "m_webcam", "restricted": false, "scopeRefs": ["p_webcam_fw_view", "p_webcam_fw_download"] },
+
+    { "nodeId": "m_chair", "title": "게이밍 체어 제품 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_chair_spec", "title": "스펙 관리", "parentId": "m_chair", "restricted": false, "scopeRefs": ["p_chair_view", "p_chair_edit", "p_chair_recline_config"] },
+    { "nodeId": "m_chair_inventory", "title": "재고 관리", "parentId": "m_chair", "restricted": false, "scopeRefs": ["p_inventory_view", "p_inventory_edit"] },
+
+    { "nodeId": "m_cs", "title": "고객 지원", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_cs_review", "title": "리뷰 관리", "parentId": "m_cs", "restricted": false, "scopeRefs": ["p_review_view", "p_review_delete"] },
+    { "nodeId": "m_cs_rma", "title": "RMA/AS 관리", "parentId": "m_cs", "restricted": false, "scopeRefs": ["p_rma_view", "p_rma_process", "p_rma_customer_info"] },
+    { "nodeId": "m_cs_inquiry", "title": "문의 관리", "parentId": "m_cs", "restricted": false, "scopeRefs": ["p_inquiry_view", "p_inquiry_reply"] },
+    { "nodeId": "m_cs_notice", "title": "긴급 공지 관리", "parentId": "m_cs", "restricted": true, "scopeRefs": ["p_notice_edit"] },
+
+    { "nodeId": "m_admin", "title": "이용자 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_admin_account", "title": "관리자 계정 관리", "parentId": "m_admin", "restricted": false, "scopeRefs": ["p_admin_view", "p_admin_edit"] },
+    { "nodeId": "m_admin_role", "title": "권한 그룹 관리", "parentId": "m_admin", "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_admin_role_list", "title": "그룹 목록 관리", "parentId": "m_admin_role", "restricted": false, "scopeRefs": ["p_role_view", "p_role_edit"] },
+    { "nodeId": "m_admin_role_matrix", "title": "권한 매트릭스 관리", "parentId": "m_admin_role", "restricted": false, "scopeRefs": ["p_role_matrix_view", "p_role_matrix_edit"] },
+    { "nodeId": "m_admin_log", "title": "접속 로그 관리", "parentId": "m_admin", "restricted": true, "scopeRefs": ["p_admin_log_view"] },
+
+    { "nodeId": "m_order", "title": "주문/물류 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_order_order", "title": "주문 관리", "parentId": "m_order", "restricted": false, "scopeRefs": ["p_order_view", "p_order_cancel"] },
+    { "nodeId": "m_order_shipping", "title": "배송 관리", "parentId": "m_order", "restricted": false, "scopeRefs": ["p_shipping_view", "p_shipping_addr_edit"] },
+    { "nodeId": "m_order_return", "title": "반품 관리", "parentId": "m_order", "restricted": false, "scopeRefs": ["p_return_view", "p_return_process", "p_return_refund"] },
+
+    { "nodeId": "m_marketing", "title": "마케팅 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_marketing_event", "title": "이벤트 관리", "parentId": "m_marketing", "restricted": false, "scopeRefs": ["p_event_view", "p_event_edit", "p_event_publish"] },
+    { "nodeId": "m_marketing_promotion", "title": "프로모션 관리", "parentId": "m_marketing", "restricted": false, "scopeRefs": ["p_promotion_view", "p_promotion_discount_edit"] },
+
+    { "nodeId": "m_finance", "title": "정산 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_finance_settlement", "title": "판매 정산 관리", "parentId": "m_finance", "restricted": false, "scopeRefs": ["p_settlement_view", "p_settlement_process"] },
+    { "nodeId": "m_finance_invoice", "title": "세금계산서 관리", "parentId": "m_finance", "restricted": false, "scopeRefs": ["p_invoice_view", "p_invoice_issue"] }
+  ],
+  "permissions": [
+    { "code": "p_group_mouse", "nodes": [
+      { "code": "p_mouse_view", "label": "마우스 스펙 조회", "nodes": [] },
+      { "code": "p_mouse_edit", "label": "마우스 스펙 수정", "nodes": [] },
+      { "code": "p_mouse_switch_approve", "label": "마우스 스위치 사양 변경 승인", "approvalNeeded": true, "nodes": [] },
+      { "code": "p_mouse_sensor_edit", "label": "마우스 센서 스펙 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_mouse_fw", "nodes": [
+      { "code": "p_mouse_fw_view", "label": "마우스 펌웨어 조회", "nodes": [] },
+      { "code": "p_mouse_fw_download", "label": "마우스 펌웨어 다운로드", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_packaging", "nodes": [
+      { "code": "p_packaging_view", "label": "패키징 사양 조회", "nodes": [] },
+      { "code": "p_packaging_edit", "label": "패키징 사양 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_kb", "nodes": [
+      { "code": "p_kb_view", "label": "키보드 스펙 조회", "nodes": [] },
+      { "code": "p_kb_edit", "label": "키보드 스펙 수정", "nodes": [] },
+      { "code": "p_kb_rt_config", "label": "키보드 래피드 트리거 임계값 설정", "approvalNeeded": true, "nodes": [] },
+      { "code": "p_kb_hotswap_edit", "label": "키보드 핫스왑 기판 정보 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_kb_fw", "nodes": [
+      { "code": "p_kb_fw_view", "label": "키보드 펌웨어 조회", "nodes": [] },
+      { "code": "p_kb_fw_download", "label": "키보드 펌웨어 다운로드", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_keycap", "nodes": [
+      { "code": "p_keycap_view", "label": "키캡 세트 조회", "nodes": [] },
+      { "code": "p_keycap_edit", "label": "키캡 세트 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_headset", "nodes": [
+      { "code": "p_headset_view", "label": "헤드셋 스펙 조회", "nodes": [] },
+      { "code": "p_headset_edit", "label": "헤드셋 스펙 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_headset_fw", "nodes": [
+      { "code": "p_headset_fw_view", "label": "헤드셋 펌웨어 조회", "nodes": [] },
+      { "code": "p_headset_fw_download", "label": "헤드셋 펌웨어 다운로드", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_webcam", "nodes": [
+      { "code": "p_webcam_view", "label": "웹캠 스펙 조회", "nodes": [] },
+      { "code": "p_webcam_edit", "label": "웹캠 스펙 수정", "nodes": [] },
+      { "code": "p_webcam_focus_calibrate", "label": "웹캠 오토포커스 보정값 변경", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_webcam_fw", "nodes": [
+      { "code": "p_webcam_fw_view", "label": "웹캠 펌웨어 조회", "nodes": [] },
+      { "code": "p_webcam_fw_download", "label": "웹캠 펌웨어 다운로드", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_chair", "nodes": [
+      { "code": "p_chair_view", "label": "게이밍 체어 스펙 조회", "nodes": [] },
+      { "code": "p_chair_edit", "label": "게이밍 체어 스펙 수정", "nodes": [] },
+      { "code": "p_chair_recline_config", "label": "체어 리클라이닝 최대 각도 설정", "nodes": [] }
+    ]},
+    { "code": "p_group_inventory", "nodes": [
+      { "code": "p_inventory_view", "label": "재고 조회", "nodes": [] },
+      { "code": "p_inventory_edit", "label": "재고 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_review", "nodes": [
+      { "code": "p_review_view", "label": "리뷰 조회", "nodes": [] },
+      { "code": "p_review_delete", "label": "리뷰 삭제", "nodes": [] }
+    ]},
+    { "code": "p_group_rma", "nodes": [
+      { "code": "p_rma_view", "label": "RMA 접수 조회", "nodes": [] },
+      { "code": "p_rma_process", "label": "RMA 처리 상태 변경", "nodes": [] },
+      { "code": "p_rma_customer_info", "label": "RMA 신청자 개인정보 조회", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_inquiry", "nodes": [
+      { "code": "p_inquiry_view", "label": "문의 조회", "nodes": [] },
+      { "code": "p_inquiry_reply", "label": "문의 답변", "nodes": [] }
+    ]},
+    { "code": "p_group_notice", "nodes": [
+      { "code": "p_notice_edit", "label": "긴급 공지 등록/수정", "nodes": [] }
+    ]},
+    { "code": "p_group_admin", "nodes": [
+      { "code": "p_admin_view", "label": "관리자 계정 조회", "nodes": [] },
+      { "code": "p_admin_edit", "label": "관리자 계정 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_admin_log", "nodes": [
+      { "code": "p_admin_log_view", "label": "관리자 접속 로그(개인정보 포함) 조회", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_role", "nodes": [
+      { "code": "p_role_view", "label": "권한 그룹 목록 조회", "nodes": [] },
+      { "code": "p_role_edit", "label": "권한 그룹 목록 수정", "nodes": [] },
+      { "code": "p_role_matrix_view", "label": "권한 매트릭스 조회", "nodes": [] },
+      { "code": "p_role_matrix_edit", "label": "권한 매트릭스 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_order", "nodes": [
+      { "code": "p_order_view", "label": "주문 조회", "nodes": [] },
+      { "code": "p_order_cancel", "label": "주문 취소/환불 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_shipping", "nodes": [
+      { "code": "p_shipping_view", "label": "배송 조회", "nodes": [] },
+      { "code": "p_shipping_addr_edit", "label": "배송지(개인정보) 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_return", "nodes": [
+      { "code": "p_return_view", "label": "반품 요청 조회", "nodes": [] },
+      { "code": "p_return_process", "label": "반품 접수 처리", "nodes": [] },
+      { "code": "p_return_refund", "label": "반품 환불 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_event", "nodes": [
+      { "code": "p_event_view", "label": "이벤트 조회", "nodes": [] },
+      { "code": "p_event_edit", "label": "이벤트 수정", "nodes": [] },
+      { "code": "p_event_publish", "label": "이벤트 게시(전체 노출) 승인", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_promotion", "nodes": [
+      { "code": "p_promotion_view", "label": "프로모션 조회", "nodes": [] },
+      { "code": "p_promotion_discount_edit", "label": "프로모션 할인율 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_settlement", "nodes": [
+      { "code": "p_settlement_view", "label": "판매 정산 내역 조회", "nodes": [] },
+      { "code": "p_settlement_process", "label": "판매 정산 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_invoice", "nodes": [
+      { "code": "p_invoice_view", "label": "세금계산서 조회", "nodes": [] },
+      { "code": "p_invoice_issue", "label": "세금계산서 발행", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_misc", "nodes": [
+      { "code": "p_orphan_beta", "label": "베타 기능 조회", "nodes": [] }
+    ]}
+  ]
+}

@@ -1,0 +1,593 @@
+.perm-grid {
+  list-style: none;
+  margin: 0;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+/* 세로 보기에서는 상세 권한 영역이 가로로 넓어지므로 카드를 여러 열로 배치.
+   각 트랙이 최소 컨테이너 절반(gap 절반 제외)을 차지하게 해 3열 이상으로는
+   늘어나지 못하고 최대 2열까지만 배치되도록 제한한다. */
+.col-menu-perm-group.is-stacked .perm-grid {
+  grid-template-columns: repeat(auto-fill, minmax(max(245px, calc(50% - 4px)), 1fr));
+}
+
+@media (max-width: 767px) {
+  .perm-grid {
+    grid-template-columns: repeat(auto-fill, minmax(max(245px, calc(50% - 4px)), 1fr));
+  }
+}
+
+.perm-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  min-width: 245px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.perm-card:hover {
+  border-color: var(--border-strong);
+}
+
+.perm-card.is-checked {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+
+.perm-card.is-filtered {
+  border-color: var(--brand);
+  outline: 2px solid color-mix(in srgb, var(--brand) 30%, transparent);
+  outline-offset: 1px;
+}
+
+.perm-filter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.3;
+  transition:
+    color 0.1s,
+    border-color 0.1s,
+    background 0.1s,
+    opacity 0.1s;
+}
+
+.perm-filter-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.perm-card:hover .perm-filter-btn {
+  opacity: 0.8;
+}
+
+.perm-filter-btn:hover {
+  opacity: 1;
+  color: var(--brand);
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.perm-filter-btn.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  color: var(--brand);
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.perm-desc {
+  position: relative;
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  line-height: 1.4;
+  overflow: hidden;
+}
+
+.perm-desc-static {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.perm-desc-track {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.perm-desc-copy {
+  white-space: nowrap;
+  padding-right: 32px;
+}
+
+.perm-desc.has-overflow.is-previewing .perm-desc-static {
+  opacity: 0;
+}
+
+/* 터치 기기 등 hover가 없는 환경: 탭/클릭한 순간에만 한 번 흘려 보여준다 */
+.perm-desc.has-overflow.is-previewing .perm-desc-track {
+  opacity: 1;
+  will-change: transform;
+  animation: perm-marquee linear 1;
+  animation-duration: var(--marquee-duration, 4s);
+}
+
+/* 실제 hover가 되는 기기(마우스)에서만 적용 — 터치에서는 tap 후 hover가
+   눌러붙는(sticky hover) 현상 때문에 무조건 무한 반복 규칙이 되어버림 */
+@media (hover: hover) and (pointer: fine) {
+  .perm-card:hover .perm-desc.has-overflow .perm-desc-static {
+    opacity: 0;
+  }
+
+  .perm-card:hover .perm-desc.has-overflow .perm-desc-track {
+    opacity: 1;
+    will-change: transform;
+    animation: perm-marquee linear infinite;
+    animation-duration: var(--marquee-duration, 4s);
+  }
+}
+
+@keyframes perm-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-1 * var(--marquee-loop, 0px)));
+  }
+}
+
+.perm-card.is-checked .perm-desc {
+  color: var(--brand-text);
+  font-weight: 500;
+}
+
+.perm-info-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--brand);
+  opacity: 0.35;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 5px;
+}
+
+.perm-card:hover .perm-info-dot {
+  opacity: 0.7;
+}
+
+.perm-card.is-checked .perm-info-dot {
+  background: var(--brand);
+  opacity: 0.6;
+}
+
+.perm-helptext-divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 8px 0 6px;
+}
+
+.perm-helptext-context-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-bottom: 3px;
+}
+
+.perm-helptext-context-body {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.perm-helptext-bubble {
+  position: fixed;
+  width: 260px;
+  max-width: calc(100vw - 24px);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 9px 12px;
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.6;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  z-index: 200;
+  pointer-events: none;
+}
+
+.perm-empty {
+  padding: 24px 16px;
+  font-size: 13px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.perm-empty-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-faint);
+  opacity: 0.8;
+}
+
+/* 카트 패널 */
+.cart-remove {
+  background: none;
+  border: none;
+  padding: 0;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--text-faint);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.cart-remove:hover {
+  background: var(--surface-2);
+  color: var(--danger);
+}
+
+.cart-remove svg {
+  width: 9px;
+  height: 9px;
+}
+
+.cart-empty-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 20px 20px;
+}
+
+.cart-empty-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+}
+
+.cart-empty-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.cart-empty-step-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.cart-empty-step-text strong {
+  display: block;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.cart-empty-step-text span {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.cart-tree {
+  padding: 6px 0;
+}
+
+.cart-tree-row {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  padding-right: 8px;
+}
+
+.cart-menu-row {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.cart-menu-row:hover {
+  background: var(--surface-2);
+}
+
+.cart-menu-row.is-focused {
+  background: var(--brand-soft);
+}
+
+.cart-orphan-perm-row {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.cart-orphan-perm-row:hover {
+  background: var(--surface-2);
+}
+
+.cart-orphan-perm-row.is-focused {
+  background: var(--brand-soft);
+}
+
+.cart-tree-pre {
+  font-family: ui-monospace, "Consolas", monospace;
+  white-space: pre;
+  color: var(--border-strong);
+  font-size: 13px;
+  flex-shrink: 0;
+  padding-left: 14px;
+}
+
+.cart-tree-check {
+  color: var(--brand-text);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cart-tree-root-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  padding-left: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-tree-branch-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-tree-leaf-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-tree-perm-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-tree-perm-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-tree-orphan-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--warn);
+  flex: 1;
+  min-width: 0;
+  padding-left: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-tree-gap {
+  height: 6px;
+}
+
+.cart-split-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 10px 16px 4px;
+}
+
+.cart-split-divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 8px 0;
+}
+
+.cart-split-empty {
+  padding: 6px 16px 10px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.cart-lock {
+  display: flex;
+  align-items: center;
+  color: var(--warn);
+  flex-shrink: 0;
+}
+
+.cart-lock svg {
+  width: 10px;
+  height: 10px;
+}
+
+.cart-view-toggle {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px 10px;
+}
+
+.cart-view-btn {
+  flex: 1;
+  padding: 3px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.cart-view-btn.is-active {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  color: var(--brand-text);
+}
+
+.cart-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cart-copy-btn {
+  flex: 1;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.cart-copy-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cart-reset-btn {
+  padding: 7px 12px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.cart-header-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand-text);
+  background: var(--brand-soft);
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, transparent);
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cart-row-no-perm {
+  background: var(--surface);
+  margin: 1px 0;
+}
+
+.cart-tree-leaf-label.is-unset {
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+.cart-perm-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
+  border-radius: 999px;
+  padding: 1px 7px 1px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--brand-text);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 6px;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.cart-perm-toggle:hover {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+
+.cart-perm-toggle .toggle-chevron {
+  width: 8px;
+  height: 5px;
+  transition: transform 0.2s;
+}
+
+.cart-perm-toggle.is-expanded .toggle-chevron {
+  transform: rotate(180deg);
+}
+
+.cart-perm-toggle.is-static {
+  cursor: default;
+  border-color: transparent;
+  pointer-events: none;
+}

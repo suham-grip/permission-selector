@@ -1,0 +1,646 @@
+.edit-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+}
+
+.edit-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.edit-header-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--brand);
+  background: var(--brand-soft);
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, transparent);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.edit-header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.edit-header-dirty {
+  font-size: 12px;
+  color: var(--warn);
+}
+
+.edit-save-btn {
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.edit-save-btn:hover {
+  background: var(--brand-hover);
+}
+
+.edit-save-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.edit-exit-btn {
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+}
+
+.edit-exit-btn:hover {
+  background: var(--surface-2);
+}
+
+.edit-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 좌측 권한 목록 */
+.edit-list-col {
+  width: 320px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-list-top {
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-list-search {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.edit-list-search:focus {
+  border-color: var(--brand);
+  background: var(--bg);
+}
+
+.edit-list-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.edit-list-filter input {
+  accent-color: var(--brand);
+  width: 14px;
+  height: 14px;
+}
+
+.edit-glossary-add-row {
+  display: flex;
+  gap: 6px;
+}
+
+.edit-glossary-add-input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.edit-glossary-add-input:focus {
+  border-color: var(--brand);
+  background: var(--bg);
+}
+
+.edit-glossary-add-btn {
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--brand);
+  background: var(--brand-soft);
+  border: none;
+  border-radius: var(--r-md);
+  white-space: nowrap;
+}
+
+.edit-glossary-add-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.edit-glossary-add-btn:disabled {
+  color: var(--text-faint);
+  background: var(--surface-2);
+  cursor: not-allowed;
+}
+
+.edit-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.edit-perm-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  border-left: 2.5px solid transparent;
+  transition: background 0.1s;
+}
+
+.edit-perm-row:hover {
+  background: var(--surface-2);
+}
+
+.edit-perm-row.is-active {
+  background: var(--brand-soft);
+  border-left-color: var(--brand);
+}
+
+.edit-perm-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--border-strong);
+}
+
+.edit-perm-dot.has-text {
+  background: var(--brand);
+}
+
+.edit-perm-name {
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-perm-code {
+  font-size: 11px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+/* 우측 편집 폼 */
+.edit-form-col {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+
+.edit-form-empty {
+  color: var(--text-faint);
+  font-size: 14px;
+  padding: 40px 0;
+}
+
+.edit-form-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 2px;
+}
+
+.edit-form-code {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin: 0 0 20px;
+  font-family: ui-monospace, "Consolas", monospace;
+}
+
+.edit-field {
+  margin-bottom: 24px;
+}
+
+.edit-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.edit-field-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+
+.edit-textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.edit-textarea:focus {
+  border-color: var(--brand);
+  background: var(--bg);
+}
+
+.edit-section-divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+.edit-menu-group {
+  margin-bottom: 18px;
+}
+
+.edit-menu-group-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 탭 */
+.edit-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
+
+.edit-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.edit-tab:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.edit-tab.is-active {
+  background: var(--brand-soft);
+  color: var(--brand);
+  border-color: color-mix(in srgb, var(--brand) 20%, transparent);
+}
+
+.edit-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warn);
+  flex-shrink: 0;
+}
+
+/* shortcuts 탭 카운트 배지 */
+.edit-sc-count {
+  font-size: 11px;
+  color: var(--brand);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* shortcuts 키워드 카드 */
+.edit-sc-add-btn {
+  margin-top: 4px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--brand);
+  background: var(--brand-soft);
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, transparent);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.edit-sc-add-btn:hover {
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.edit-sc-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.edit-sc-card {
+  margin-top: 0;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.edit-sc-card.has-warn {
+  border-color: var(--warn);
+}
+
+.edit-sc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.edit-sc-label-input {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: none;
+  border: none;
+  outline: none;
+  min-width: 0;
+}
+
+.edit-sc-label-input::placeholder {
+  font-weight: 400;
+  color: var(--text-faint);
+}
+
+.edit-sc-desc-row {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.edit-sc-desc-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 5px 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  resize: vertical;
+  min-height: 40px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.edit-sc-desc-input::placeholder {
+  color: var(--text-faint);
+}
+
+.edit-sc-delete-btn {
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.edit-sc-delete-btn:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.edit-sc-field {
+  padding: 7px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.edit-sc-field:last-child {
+  border-bottom: none;
+}
+
+.edit-sc-field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* MultiSelect */
+.edit-ms {
+  position: relative;
+}
+
+.edit-ms-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.edit-ms-trigger:hover {
+  border-color: var(--border-strong);
+}
+
+.edit-ms-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.edit-ms-caret {
+  font-size: 9px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.edit-ms-panel {
+  position: fixed;
+  background: var(--bg);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--r-md);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.edit-ms-search {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.edit-ms-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.edit-ms-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.edit-ms-item:hover {
+  background: var(--surface-2);
+}
+
+.edit-ms-item.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.edit-ms-item input[type="checkbox"] {
+  accent-color: var(--brand);
+  flex-shrink: 0;
+}
+
+.edit-ms-empty {
+  padding: 10px;
+  font-size: 13px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.edit-menu-hidden-tag {
+  font-size: 10px;
+  color: var(--text-faint);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.edit-hidden-badge {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--text-faint);
+  margin-left: 2px;
+}
+
+.edit-ms-item .edit-hidden-badge {
+  margin-left: auto;
+}
+
+/* cascade preview in shortcuts card */
+.edit-sc-cascade-field {
+  background: var(--surface-2);
+  gap: 8px;
+}
+
+.edit-sc-cascade-hint {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.edit-sc-cascade-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.edit-sc-cascade-name {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-sc-cascade-count {
+  font-size: 11px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+

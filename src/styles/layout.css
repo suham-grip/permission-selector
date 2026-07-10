@@ -1,0 +1,561 @@
+body {
+  background: var(--surface-2);
+}
+
+#app {
+  width: 1040px;
+  height: 100vh;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.header-logo {
+  height: 20px;
+  object-fit: contain;
+}
+
+.header-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-strong);
+}
+
+.header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* 권한 메뉴 + 상세 권한을 묶는 그룹 (가로/세로 배치 전환용) */
+.col-menu-perm-group {
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.col-menu-perm-group.is-stacked {
+  flex-direction: column;
+}
+
+/* 좌측: 권한 메뉴 (고정폭) */
+.col-menu {
+  width: 395px;
+  flex: 0 0 395px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* 중앙: 상세 권한 (1열 고정폭) */
+.col-perm {
+  width: 305px;
+  flex: 0 0 305px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.col-menu-perm-group.is-stacked > .col-menu {
+  width: auto;
+  flex: 0 0 50%;
+  border-right: none;
+  border-bottom: 1px solid var(--border);
+  min-height: 80px;
+}
+
+.col-menu-perm-group.is-stacked > .col-perm {
+  width: auto;
+  flex: 1 1 auto;
+  border-right: none;
+  min-height: 80px;
+}
+
+.layout-resize-handle {
+  flex-shrink: 0;
+  height: 6px;
+  cursor: row-resize;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  touch-action: none;
+}
+
+.layout-resize-handle:hover,
+.layout-resize-handle:active {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+
+.layout-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--border-strong);
+}
+
+.layout-resize-handle:hover::after {
+  background: var(--brand);
+}
+
+/* 우측: 카트 패널 (고정폭) */
+.col-cart {
+  width: 338px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 태블릿: 3단 유지, 폭만 유동화 */
+@media (max-width: 1039px) {
+  #app {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1039px) and (min-width: 768px) {
+  /* .col-menu-perm-group은 카트 폭을 뺀 나머지만 차지하므로,
+     %는 데스크톱 고정폭 비율(395:305 ≈ 56:44)에 맞춰야 카트 쪽으로 좁아져도 비율이 안 뒤집힘 */
+  .col-menu {
+    width: auto;
+    flex: 0 0 56%;
+  }
+
+  .col-perm {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .col-cart {
+    width: 28%;
+    flex: 0 0 28%;
+    min-width: 220px;
+  }
+}
+
+/* 모바일: 좌우 스와이프 캐러셀(메뉴/상세권한) + 선택현황 플로팅 버튼 */
+.mobile-swipe-dots {
+  display: none;
+}
+
+.mobile-cart-fab {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .app-body {
+    flex-direction: column;
+  }
+
+  .mobile-swipe-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .mobile-swipe-dot {
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--border-strong);
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .mobile-swipe-dot.is-active {
+    background: var(--brand);
+    transform: scale(1.4);
+  }
+
+  .mobile-swipe-viewport {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    touch-action: pan-y;
+  }
+
+  .mobile-swipe-track {
+    display: flex;
+    width: 200%;
+    height: 100%;
+    will-change: transform;
+  }
+
+  .mobile-swipe-page {
+    width: 50%;
+    flex-shrink: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .mobile-swipe-page .col-menu,
+  .mobile-swipe-page .col-perm {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    border: none;
+  }
+
+  /* .col-scroll(overflow-y:scroll)은 실기기에서 터치 시작 시 스크롤 제스처를
+     먼저 낚아채 가로 스와이프 인식을 방해할 수 있어 명시적으로 세로 팬만 허용 */
+  .mobile-swipe-page .col-scroll,
+  .mobile-swipe-page .tree-search-results {
+    touch-action: pan-y;
+  }
+
+  .layout-resize-handle {
+    display: none;
+  }
+
+  .mobile-cart-fab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 500;
+    padding: 11px 18px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(var(--brand-rgb), 0.4);
+  }
+
+  .mobile-cart-fab svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mobile-cart-fab-badge {
+    background: #fff;
+    color: var(--brand-text);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-cart-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 600;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-cart-overlay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .mobile-cart-overlay-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .mobile-cart-overlay-close {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+  }
+
+  .mobile-cart-overlay-close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mobile-cart-overlay-close:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .mobile-cart-overlay-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.col-header {
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.col-header h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.col-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.col-header-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.col-header-filter-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.col-header-context {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 12px;
+  background: var(--brand-soft);
+  border: 1px solid var(--brand);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--brand-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.col-header-context.is-clearable {
+  cursor: pointer;
+}
+
+.col-header-context.is-clearable:hover {
+  background: color-mix(in srgb, var(--brand) 15%, var(--brand-soft));
+}
+
+.col-header-context.is-static {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+.col-header-context-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.col-header-context-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.col-header-context-close {
+  flex-shrink: 0;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.col-header-context.is-clearable:hover .col-header-context-close {
+  opacity: 1;
+}
+
+.col-scroll {
+  flex: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.col-scroll::-webkit-scrollbar { width: 4px; }
+.col-scroll::-webkit-scrollbar-track { background: transparent; }
+.col-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+.col-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* 물음표 툴팁 */
+.help-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text-faint);
+  font-size: 9px;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  cursor: default;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.help-tooltip:hover {
+  border-color: var(--text-muted);
+  color: var(--text-muted);
+}
+
+.help-tooltip-bubble {
+  display: block;
+  position: fixed;
+  background: var(--text);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  width: 220px;
+  max-width: calc(100vw - 24px);
+  white-space: normal;
+  z-index: 9999; /* 다른 툴팁(#data-tooltip-root)과 동일 레이어 — 항상 모달·토스트 위에 표시 */
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.help-tooltip-bubble::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  border: 5px solid transparent;
+}
+
+.help-tooltip-bubble.is-below::before {
+  bottom: 100%;
+  border-bottom-color: var(--text);
+}
+
+.help-tooltip-bubble:not(.is-below)::before {
+  top: 100%;
+  border-top-color: var(--text);
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.app-action-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand-text);
+  background: var(--brand-soft);
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, transparent);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.15s;
+}
+
+.app-action-btn:hover {
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.app-action-btn.layout-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  height: 30px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+.layout-toggle-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-action-btn.layout-toggle-btn svg {
+  width: 22px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.app-action-btn.layout-toggle-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+

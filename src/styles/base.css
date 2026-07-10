@@ -1,0 +1,203 @@
+:root {
+  --brand: #ff3c78;
+  --brand-rgb: 255, 60, 120;
+  --brand-soft: #fff0f5;
+  --brand-hover: #e0235f;
+  /* --brand는 소형 텍스트에서 대비 기준(AA 4.5:1) 미달 — 작은 라벨/카운트 텍스트엔 이 색을 사용 */
+  --brand-text: #e0235f;
+
+  --bg: #ffffff;
+  --surface: #fafafa;
+  --surface-2: #f4f4f5;
+  --border: #ebebe8;
+  --border-strong: #d4d4d8;
+
+  --text: #18181b;
+  --text-muted: #71717a;
+  --text-faint: #a1a1aa;
+
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --warn: #ca8a04;
+  --warn-soft: #fefce8;
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --danger-hover: #fecaca;
+
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-xl: 12px;
+
+  font-family: 'Poppins', 'Pretendard', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+.btn-primary:hover {
+  background: var(--brand-hover);
+  border-color: var(--brand-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.btn-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: transparent;
+}
+.btn-danger:hover {
+  background: var(--danger-hover);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.badge-warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+  border: 1px solid var(--warn);
+}
+
+.badge-orphan {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px dashed var(--border-strong);
+}
+
+.search-highlight {
+  background: none;
+  color: var(--brand-text);
+  font-weight: 700;
+}
+
+.glossary-term {
+  text-decoration: underline dotted currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.glossary-notes-divider {
+  display: block;
+  border: 0;
+  border-top: 1px solid currentColor;
+  opacity: 0.2;
+  margin: 8px 0 6px;
+}
+
+.glossary-notes {
+  display: block;
+}
+
+.glossary-note-row {
+  display: block;
+  margin-bottom: 4px;
+}
+.glossary-note-row:last-child {
+  margin-bottom: 0;
+}
+
+.glossary-note-term {
+  font-weight: 700;
+}
+.glossary-note-term::after {
+  content: " — ";
+}
+
+.glossary-note-desc {
+  opacity: 0.85;
+}
+
+.btn:focus-visible,
+.search-input:focus-visible,
+.tree-node-check:focus-visible,
+.perm-card:focus-visible,
+.perm-filter-btn:focus-visible,
+.cart-remove:focus-visible,
+.cart-view-btn:focus-visible,
+.cart-perm-toggle:focus-visible,
+.tree-node-chip:focus-visible,
+.tree-toggle-all-btn:focus-visible,
+.tree-hidden-toggle:focus-visible,
+.app-action-btn:focus-visible,
+.mobile-cart-fab:focus-visible,
+.mobile-cart-overlay-close:focus-visible,
+.mobile-swipe-dot:focus-visible,
+.col-header-context:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+#data-tooltip-root {
+  position: fixed;
+  background: rgba(24, 24, 27, 0.75);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  padding: 5px 10px;
+  border-radius: var(--r-md);
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.08s;
+  opacity: 0;
+}
