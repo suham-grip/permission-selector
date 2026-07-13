@@ -75,21 +75,29 @@ export function initGlobalTooltip() {
     if (e.relatedTarget && target.contains(e.relatedTarget)) return;
     hide();
   });
+  // 터치: pointerdown(손가락이 닿는 즉시) 시점에 보여주거나 숨긴다. 롱프레스로 여는
+  // 설명 툴팁(useTooltip.js)과 달리 이 안내는 탭 자체를 막지 않는다 — preventDefault나
+  // stopPropagation을 호출하지 않으므로 뒤이은 click(필터 토글 등)은 그대로 진행된다.
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (!isCoarsePointer()) return;
+      const target = e.target.closest('[data-tooltip]');
+      if (target) {
+        show(target.dataset.tooltip, target);
+      } else {
+        hide();
+      }
+    },
+    true,
+  );
   // capture 단계에서 등록 — 버튼들의 onClick이 e.stopPropagation()을 호출해도
   // (필터 버튼, 카트 제거 버튼 등 다수가 그렇다) capture는 target/bubble 단계보다
   // 먼저 실행되므로 여기서는 항상 클릭을 감지할 수 있다.
   document.addEventListener(
     'click',
     (e) => {
-      if (isCoarsePointer()) {
-        const target = e.target.closest('[data-tooltip]');
-        if (target) {
-          show(target.dataset.tooltip, target);
-        } else {
-          hide();
-        }
-        return;
-      }
+      if (isCoarsePointer()) return;
       // 마우스: 클릭 시점엔 아직 Preact 리렌더 전이라 data-tooltip이 stale하다.
       // 다음 프레임(리렌더 이후)에 같은 요소가 여전히 남아있고 여전히 hover
       // 중이면(예: 필터 버튼처럼 요소는 유지되고 텍스트만 바뀐 경우) 최신
