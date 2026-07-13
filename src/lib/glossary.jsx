@@ -4,8 +4,9 @@ import { highlight } from "./text.jsx";
 // "[[용어]]" 마커를 파싱해 표시용 노드와 등장한 용어 목록을 함께 반환한다.
 // 용어집에 없는 태그는 마커만 벗기고 일반 텍스트로 취급(강등)한다.
 // query를 넘기면 마커를 벗긴 각 조각에 검색 하이라이트(highlight)도 함께 적용한다.
-export function parseGlossaryText(text, query) {
+export function parseGlossaryText(text, query, opts) {
   if (!text) return { nodes: text, terms: [] };
+  const edit = opts?.edit ?? false;
   const re = /\[\[(.+?)\]\]/g;
   const nodes = [];
   const terms = [];
@@ -19,7 +20,8 @@ export function parseGlossaryText(text, query) {
     const term = m[1];
     if (GLOSSARY[term] != null) {
       nodes.push(
-        <span class="glossary-term" key={key++}>
+        <span class={edit ? "glossary-term-edit" : "glossary-term"} key={key++}>
+          {edit ? "@" : ""}
           {highlight(term, query)}
         </span>,
       );

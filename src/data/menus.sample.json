@@ -57,7 +57,7 @@
       { "code": "p_mouse_view", "label": "마우스 스펙 조회", "nodes": [] },
       { "code": "p_mouse_edit", "label": "마우스 스펙 수정", "nodes": [] },
       { "code": "p_mouse_switch_approve", "label": "마우스 스위치 사양 변경 승인", "approvalNeeded": true, "nodes": [] },
-      { "code": "p_mouse_sensor_edit", "label": "마우스 센서 스펙 수정", "nodes": [] }
+      { "code": "p_mouse_sensor_edit", "label": "마우스 센서([[LOD]]/[[DPI]]/[[폴링레이트]]) 스펙 수정", "nodes": [] }
     ]},
     { "code": "p_group_mouse_fw", "nodes": [
       { "code": "p_mouse_fw_view", "label": "마우스 펌웨어 조회", "nodes": [] },
@@ -70,8 +70,8 @@
     { "code": "p_group_kb", "nodes": [
       { "code": "p_kb_view", "label": "키보드 스펙 조회", "nodes": [] },
       { "code": "p_kb_edit", "label": "키보드 스펙 수정", "nodes": [] },
-      { "code": "p_kb_rt_config", "label": "키보드 래피드 트리거 임계값 설정", "approvalNeeded": true, "nodes": [] },
-      { "code": "p_kb_hotswap_edit", "label": "키보드 핫스왑 기판 정보 수정", "nodes": [] }
+      { "code": "p_kb_rt_config", "label": "키보드 [[래피드 트리거]] [[액추에이션 포인트]] 설정", "approvalNeeded": true, "nodes": [] },
+      { "code": "p_kb_hotswap_edit", "label": "키보드 [[핫스왑]] 기판 정보 수정", "nodes": [] }
     ]},
     { "code": "p_group_kb_fw", "nodes": [
       { "code": "p_kb_fw_view", "label": "키보드 펌웨어 조회", "nodes": [] },
@@ -101,7 +101,7 @@
     { "code": "p_group_chair", "nodes": [
       { "code": "p_chair_view", "label": "게이밍 체어 스펙 조회", "nodes": [] },
       { "code": "p_chair_edit", "label": "게이밍 체어 스펙 수정", "nodes": [] },
-      { "code": "p_chair_recline_config", "label": "체어 리클라이닝 최대 각도 설정", "nodes": [] }
+      { "code": "p_chair_recline_config", "label": "체어 [[리클라이닝]] 최대 각도 설정", "nodes": [] }
     ]},
     { "code": "p_group_inventory", "nodes": [
       { "code": "p_inventory_view", "label": "재고 조회", "nodes": [] },
@@ -114,7 +114,7 @@
     { "code": "p_group_rma", "nodes": [
       { "code": "p_rma_view", "label": "RMA 접수 조회", "nodes": [] },
       { "code": "p_rma_process", "label": "RMA 처리 상태 변경", "nodes": [] },
-      { "code": "p_rma_customer_info", "label": "RMA 신청자 개인정보 조회", "approvalNeeded": true, "nodes": [] }
+      { "code": "p_rma_customer_info", "label": "[[RMA]] 신청자 개인정보 조회", "approvalNeeded": true, "nodes": [] }
     ]},
     { "code": "p_group_inquiry", "nodes": [
       { "code": "p_inquiry_view", "label": "문의 조회", "nodes": [] },

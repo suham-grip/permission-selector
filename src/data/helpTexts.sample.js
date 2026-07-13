@@ -8,17 +8,6 @@ export const HELP_TEXTS = {
     "p_admin_log_view": "접속 로그에는 개인정보가 포함되어 있어 결재가 필요합니다",
     "p_return_refund": "환불 처리는 회계팀 결재를 거쳐야 최종 승인됩니다"
   },
-  "permissionNames": {
-    "p_mouse_sensor_edit": "마우스 센서([[LOD]]/[[DPI]]/[[폴링레이트]]) 스펙 수정",
-    "p_kb_rt_config": "키보드 [[래피드 트리거]] [[액추에이션 포인트]] 설정",
-    "p_kb_hotswap_edit": "키보드 [[핫스왑]] 기판 정보 수정",
-    "p_rma_customer_info": "[[RMA]] 신청자 개인정보 조회",
-    "p_chair_recline_config": "체어 [[리클라이닝]] 최대 각도 설정",
-    "p_event_publish": "이벤트 게시(전체 노출) 승인",
-    "p_promotion_discount_edit": "프로모션 할인율 수정",
-    "p_admin_log_view": "관리자 접속 로그(개인정보 포함) 조회",
-    "p_return_refund": "반품 환불 처리"
-  },
   "menuOverrides": {
     "m_mouse_firmware": {
       "p_mouse_fw_download": "이 메뉴에서는 최신 마우스 펌웨어 바이너리를 다운로드합니다"

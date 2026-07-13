@@ -21,7 +21,7 @@ export function parseMenus(raw) {
   const permMap = {}
   for (const node of leaves) {
     permMap[node.code] = {
-      label: HELP_TEXTS.permissionNames?.[node.code] ?? node.label ?? node.code,
+      label: node.label ?? node.code,
       requiresApproval: node.approvalNeeded ?? false,
       // helpTexts.js 우선, 없으면 menus.json 인라인 값 fallback
       helpText: HELP_TEXTS.permissions[node.code] ?? node.helpText ?? null,

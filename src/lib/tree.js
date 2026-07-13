@@ -29,6 +29,24 @@ export function buildTree(menus) {
   return roots
 }
 
+// nodeId의 모든 자손 nodeId 목록(순서 무관) — 상위 메뉴 선택 시 순환 참조를 막는 용도
+export function getDescendantIds(menus, nodeId) {
+  const children = {}
+  for (const m of menus) {
+    if (m.parentId == null) continue
+    if (!children[m.parentId]) children[m.parentId] = []
+    children[m.parentId].push(m.nodeId)
+  }
+  const result = []
+  const stack = [...(children[nodeId] ?? [])]
+  while (stack.length > 0) {
+    const id = stack.pop()
+    result.push(id)
+    stack.push(...(children[id] ?? []))
+  }
+  return result
+}
+
 export function getAncestorPath(menus, nodeId) {
   const map = {}
   for (const m of menus) map[m.nodeId] = m

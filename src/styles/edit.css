@@ -279,6 +279,31 @@
   background: var(--bg);
 }
 
+.edit-mention-field {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  overflow-y: auto;
+  cursor: text;
+}
+
+.edit-mention-field.is-input-mode {
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: hidden;
+  resize: none;
+}
+
+.edit-mention-field.is-empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.edit-mention-field .glossary-term-edit {
+  user-select: none;
+  cursor: default;
+}
+
 .edit-section-divider {
   border: 0;
   border-top: 1px solid var(--border);
@@ -537,6 +562,15 @@
   pointer-events: none;
 }
 
+.edit-ms-item.is-highlighted {
+  background: var(--brand-soft);
+}
+
+.edit-ms-item.is-add-new {
+  color: var(--brand);
+  border-top: 1px solid var(--border);
+}
+
 .edit-ms-item input[type="checkbox"] {
   accent-color: var(--brand);
   flex-shrink: 0;
@@ -605,6 +639,188 @@
   flex-shrink: 0;
 }
 
+/* 메뉴/권한 구조 탭 — 서브뷰 토글 */
+.edit-mt-subtabs {
+  display: flex;
+  gap: 2px;
+}
+
+.edit-mt-subtab {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.edit-mt-subtab.is-active {
+  background: var(--brand-soft);
+  color: var(--brand);
+  border-color: color-mix(in srgb, var(--brand) 20%, transparent);
+}
+
+.edit-mt-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-mt-add-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.edit-select {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.edit-select:focus {
+  border-color: var(--brand);
+  background: var(--bg);
+}
+
+/* 메뉴 트리 — Notion 스타일 인라인 편집 */
+.edit-mt-node-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 14px 5px 0;
+  cursor: pointer;
+  border-left: 2.5px solid transparent;
+  position: relative;
+  transition: background 0.1s;
+}
+
+.edit-mt-node-row.is-active {
+  background: var(--brand-soft);
+  border-left-color: var(--brand);
+}
+
+.edit-mt-node-row.is-dragging {
+  opacity: 0.4;
+}
+
+.edit-mt-node-row.is-drop-before::before,
+.edit-mt-node-row.is-drop-after::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: var(--brand);
+  border-radius: 1px;
+}
+
+.edit-mt-node-row.is-drop-before::before {
+  top: 0;
+}
+
+.edit-mt-node-row.is-drop-after::after {
+  bottom: 0;
+}
+
+.edit-mt-node-row.is-drop-inside {
+  background: var(--brand-soft);
+  outline: 1.5px dashed var(--brand);
+  outline-offset: -1.5px;
+}
+
+.edit-mt-node-grip {
+  width: 14px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-faint);
+  opacity: 0.3;
+  cursor: grab;
+}
+
+.edit-mt-node-grip svg {
+  width: 8px;
+  height: 12px;
+}
+
+.edit-mt-node-toggle {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-faint);
+  transition: transform 0.15s;
+}
+
+.edit-mt-node-toggle.is-open {
+  transform: rotate(90deg);
+}
+
+.edit-mt-node-toggle.is-empty {
+  visibility: hidden;
+}
+
+.edit-mt-node-toggle svg {
+  width: 10px;
+  height: 10px;
+}
+
+.edit-mt-node-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-mt-node-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  opacity: 0.3;
+}
+
+.edit-mt-node-icon-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.edit-mt-node-icon-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.edit-mt-node-icon-btn:disabled {
+  color: var(--text-faint);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* 터치 기기에서 탭 후 hover가 눌러붙는(sticky hover) 현상 방지 —
    실제 마우스 hover가 가능한 기기에서만 아래 hover 스타일을 적용한다 */
 @media (hover: hover) and (pointer: fine) {
@@ -624,8 +840,29 @@
     background: var(--surface-2);
   }
 
+  .edit-mt-node-row:hover {
+    background: var(--surface-2);
+  }
+
+  .edit-mt-node-row:hover .edit-mt-node-actions {
+    opacity: 0.8;
+  }
+
+  .edit-mt-node-row:hover .edit-mt-node-grip {
+    opacity: 0.6;
+  }
+
+  .edit-mt-node-icon-btn:hover:not(:disabled) {
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+
   .edit-tab:hover {
     background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .edit-mt-subtab:hover {
     color: var(--text);
   }
 
