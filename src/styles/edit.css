@@ -51,10 +51,6 @@
   transition: background 0.15s;
 }
 
-.edit-save-btn:hover {
-  background: var(--brand-hover);
-}
-
 .edit-save-btn:disabled {
   opacity: 0.5;
   cursor: default;
@@ -68,10 +64,6 @@
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   cursor: pointer;
-}
-
-.edit-exit-btn:hover {
-  background: var(--surface-2);
 }
 
 .edit-body {
@@ -164,10 +156,6 @@
   white-space: nowrap;
 }
 
-.edit-glossary-add-btn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--brand) 12%, transparent);
-}
-
 .edit-glossary-add-btn:disabled {
   color: var(--text-faint);
   background: var(--surface-2);
@@ -188,10 +176,6 @@
   cursor: pointer;
   border-left: 2.5px solid transparent;
   transition: background 0.1s;
-}
-
-.edit-perm-row:hover {
-  background: var(--surface-2);
 }
 
 .edit-perm-row.is-active {
@@ -337,11 +321,6 @@
   transition: all 0.1s;
 }
 
-.edit-tab:hover {
-  background: var(--surface-2);
-  color: var(--text);
-}
-
 .edit-tab.is-active {
   background: var(--brand-soft);
   color: var(--brand);
@@ -376,10 +355,6 @@
   border-radius: var(--r-md);
   cursor: pointer;
   transition: background 0.15s;
-}
-
-.edit-sc-add-btn:hover {
-  background: color-mix(in srgb, var(--brand) 12%, transparent);
 }
 
 .edit-sc-list {
@@ -460,12 +435,6 @@
   flex-shrink: 0;
 }
 
-.edit-sc-delete-btn:hover {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border-color: var(--danger);
-}
-
 .edit-sc-field {
   padding: 7px 10px;
   display: flex;
@@ -504,10 +473,6 @@
   text-align: left;
   transition: border-color 0.15s;
   font-family: inherit;
-}
-
-.edit-ms-trigger:hover {
-  border-color: var(--border-strong);
 }
 
 .edit-ms-value {
@@ -564,10 +529,6 @@
   color: var(--text);
   cursor: pointer;
   transition: background 0.1s;
-}
-
-.edit-ms-item:hover {
-  background: var(--surface-2);
 }
 
 .edit-ms-item.is-disabled {
@@ -642,5 +603,48 @@
   font-size: 11px;
   color: var(--text-faint);
   flex-shrink: 0;
+}
+
+/* 터치 기기에서 탭 후 hover가 눌러붙는(sticky hover) 현상 방지 —
+   실제 마우스 hover가 가능한 기기에서만 아래 hover 스타일을 적용한다 */
+@media (hover: hover) and (pointer: fine) {
+  .edit-save-btn:hover {
+    background: var(--brand-hover);
+  }
+
+  .edit-exit-btn:hover {
+    background: var(--surface-2);
+  }
+
+  .edit-glossary-add-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--brand) 12%, transparent);
+  }
+
+  .edit-perm-row:hover {
+    background: var(--surface-2);
+  }
+
+  .edit-tab:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .edit-sc-add-btn:hover {
+    background: color-mix(in srgb, var(--brand) 12%, transparent);
+  }
+
+  .edit-sc-delete-btn:hover {
+    background: var(--danger-soft);
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+
+  .edit-ms-trigger:hover {
+    border-color: var(--border-strong);
+  }
+
+  .edit-ms-item:hover {
+    background: var(--surface-2);
+  }
 }
 

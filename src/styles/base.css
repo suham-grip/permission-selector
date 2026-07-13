@@ -73,19 +73,11 @@ input {
   color: #fff;
   border-color: var(--brand);
 }
-.btn-primary:hover {
-  background: var(--brand-hover);
-  border-color: var(--brand-hover);
-}
 
 .btn-ghost {
   background: transparent;
   color: var(--text-muted);
   border-color: var(--border);
-}
-.btn-ghost:hover {
-  background: var(--surface-2);
-  color: var(--text);
 }
 
 .btn-danger {
@@ -93,8 +85,23 @@ input {
   color: var(--danger);
   border-color: transparent;
 }
-.btn-danger:hover {
-  background: var(--danger-hover);
+
+/* 터치 기기에서 탭 후 hover가 눌러붙는(sticky hover) 현상 방지 —
+   실제 마우스 hover가 가능한 기기에서만 아래 hover 스타일을 적용한다 */
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover {
+    background: var(--brand-hover);
+    border-color: var(--brand-hover);
+  }
+
+  .btn-ghost:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .btn-danger:hover {
+    background: var(--danger-hover);
+  }
 }
 
 .badge {

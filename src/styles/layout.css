@@ -111,7 +111,6 @@ body {
   touch-action: none;
 }
 
-.layout-resize-handle:hover,
 .layout-resize-handle:active {
   background: var(--brand-soft);
   border-color: var(--brand);
@@ -127,10 +126,6 @@ body {
   height: 2px;
   border-radius: 1px;
   background: var(--border-strong);
-}
-
-.layout-resize-handle:hover::after {
-  background: var(--brand);
 }
 
 /* 우측: 카트 패널 (고정폭) */
@@ -333,11 +328,6 @@ body {
     height: 16px;
   }
 
-  .mobile-cart-overlay-close:hover {
-    background: var(--surface-2);
-    color: var(--text);
-  }
-
   .mobile-cart-overlay-body {
     flex: 1 1 auto;
     min-height: 0;
@@ -403,10 +393,6 @@ body {
   cursor: pointer;
 }
 
-.col-header-context.is-clearable:hover {
-  background: color-mix(in srgb, var(--brand) 15%, var(--brand-soft));
-}
-
 .col-header-context.is-static {
   background: var(--surface-2);
   border-color: var(--border);
@@ -430,10 +416,6 @@ body {
   font-size: 15px;
   line-height: 1;
   opacity: 0.6;
-}
-
-.col-header-context.is-clearable:hover .col-header-context-close {
-  opacity: 1;
 }
 
 .col-scroll {
@@ -466,11 +448,6 @@ body {
   cursor: default;
   flex-shrink: 0;
   user-select: none;
-}
-
-.help-tooltip:hover {
-  border-color: var(--text-muted);
-  color: var(--text-muted);
 }
 
 .help-tooltip-bubble {
@@ -527,10 +504,6 @@ body {
   transition: background 0.15s;
 }
 
-.app-action-btn:hover {
-  background: color-mix(in srgb, var(--brand) 12%, transparent);
-}
-
 .app-action-btn.layout-toggle-btn {
   display: flex;
   align-items: center;
@@ -554,8 +527,45 @@ body {
   flex-shrink: 0;
 }
 
-.app-action-btn.layout-toggle-btn:hover {
-  background: var(--surface);
-  color: var(--text);
+/* 터치 기기에서 탭 후 hover가 눌러붙는(sticky hover) 현상 방지 —
+   실제 마우스 hover가 가능한 기기에서만 아래 hover 스타일을 적용한다 */
+@media (hover: hover) and (pointer: fine) {
+  .layout-resize-handle:hover {
+    background: var(--brand-soft);
+    border-color: var(--brand);
+  }
+
+  .layout-resize-handle:hover::after {
+    background: var(--brand);
+  }
+
+  .col-header-context.is-clearable:hover {
+    background: color-mix(in srgb, var(--brand) 15%, var(--brand-soft));
+  }
+
+  .col-header-context.is-clearable:hover .col-header-context-close {
+    opacity: 1;
+  }
+
+  .help-tooltip:hover {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+  }
+
+  .app-action-btn:hover {
+    background: color-mix(in srgb, var(--brand) 12%, transparent);
+  }
+
+  .app-action-btn.layout-toggle-btn:hover {
+    background: var(--surface);
+    color: var(--text);
+  }
+}
+
+@media (max-width: 767px) and (hover: hover) and (pointer: fine) {
+  .mobile-cart-overlay-close:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
 }
 

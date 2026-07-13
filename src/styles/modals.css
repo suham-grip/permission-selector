@@ -184,10 +184,6 @@
   opacity: 0.75;
 }
 
-.modal-expand-toggle:hover {
-  opacity: 1;
-}
-
 .modal-expand-toggle--warn {
   color: var(--warn);
 }
@@ -374,11 +370,6 @@
   transition: color 0.1s, background 0.1s;
 }
 
-.search-clear-btn:hover {
-  color: var(--text);
-  background: var(--surface-2);
-}
-
 .search-clear-btn svg {
   position: static;
   transform: none;
@@ -532,10 +523,6 @@
   border-radius: var(--r-sm);
   color: var(--text-faint);
   transition: background 0.15s, color 0.15s;
-}
-.tour-close-btn:hover {
-  background: var(--surface-2);
-  color: var(--text);
 }
 .tour-close-btn svg {
   width: 15px;
@@ -802,11 +789,29 @@ body[data-tour-highlight=".mobile-cart-fab"] .mobile-cart-fab {
   animation-fill-mode: forwards;
 }
 
-.copy-preview:hover .copy-preview-bar-fill {
-  animation-play-state: paused;
-}
-
 @keyframes copy-preview-shrink {
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }
+}
+
+/* 터치 기기에서 탭 후 hover가 눌러붙는(sticky hover) 현상 방지 —
+   실제 마우스 hover가 가능한 기기에서만 아래 hover 스타일을 적용한다 */
+@media (hover: hover) and (pointer: fine) {
+  .modal-expand-toggle:hover {
+    opacity: 1;
+  }
+
+  .search-clear-btn:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+
+  .tour-close-btn:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .copy-preview:hover .copy-preview-bar-fill {
+    animation-play-state: paused;
+  }
 }

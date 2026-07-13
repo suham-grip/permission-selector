@@ -15,10 +15,6 @@
   transition: background 0.1s;
 }
 
-.tree-node:hover {
-  background: var(--surface-2);
-}
-
 .tree-node.is-focused {
   background: var(--brand-soft);
 }
@@ -94,19 +90,9 @@
   inset: -8px;
 }
 
-.tree-node-check:hover {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 4px var(--brand-soft);
-}
-
 .tree-node-check.is-checked {
   background: var(--brand);
   border-color: var(--brand);
-}
-
-.tree-node-check.is-checked:hover {
-  background: var(--brand-hover);
-  border-color: var(--brand-hover);
 }
 
 .tree-node-check.is-checked::after {
@@ -241,10 +227,6 @@
   cursor: default;
 }
 
-.tree-node-desc-icon:hover {
-  color: var(--text-muted);
-}
-
 .tree-node-desc-icon svg {
   width: 13px;
   height: 13px;
@@ -297,10 +279,6 @@
 
 .tree-node .perm-filter-btn {
   opacity: 0.3;
-}
-
-.tree-node:hover .perm-filter-btn {
-  opacity: 0.8;
 }
 
 .tree-node-chip-wrap {
@@ -391,10 +369,6 @@
   border-radius: 3px;
 }
 
-.chip-tip-cascade-row:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
 .chip-tip-cascade-name {
   font-size: 12px;
   flex: 1;
@@ -475,17 +449,6 @@
   transition: all 0.1s;
   white-space: nowrap;
   line-height: 18px;
-}
-
-.tree-node-chip:hover {
-  border-color: var(--brand);
-  color: var(--brand-text);
-}
-
-/* 선택 항목이 있는 칩 hover: inline style color 유지, 밝기만 조정 */
-.tree-node-chip.is-partial:hover,
-.tree-node-chip.is-active:hover {
-  filter: brightness(1.08);
 }
 
 .tree-node-chip.is-partial {
@@ -571,10 +534,6 @@
   border-bottom: none;
 }
 
-.tree-search-result-row:hover {
-  background: var(--surface-2);
-}
-
 .tree-search-result-path {
   font-size: 11px;
   color: var(--text-faint);
@@ -587,5 +546,50 @@
 
 .tree-search-result-row.is-branch .tree-search-result-name {
   color: var(--text-muted);
+}
+
+/* 터치 기기에서 탭 후 hover가 눌러붙는(sticky hover) 현상 방지 —
+   실제 마우스 hover가 가능한 기기에서만 아래 hover 스타일을 적용한다 */
+@media (hover: hover) and (pointer: fine) {
+  .tree-node:hover {
+    background: var(--surface-2);
+  }
+
+  .tree-node-check:hover {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px var(--brand-soft);
+  }
+
+  .tree-node-check.is-checked:hover {
+    background: var(--brand-hover);
+    border-color: var(--brand-hover);
+  }
+
+  .tree-node-desc-icon:hover {
+    color: var(--text-muted);
+  }
+
+  .tree-node:hover .perm-filter-btn {
+    opacity: 0.8;
+  }
+
+  .chip-tip-cascade-row:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .tree-node-chip:hover {
+    border-color: var(--brand);
+    color: var(--brand-text);
+  }
+
+  /* 선택 항목이 있는 칩 hover: inline style color 유지, 밝기만 조정 */
+  .tree-node-chip.is-partial:hover,
+  .tree-node-chip.is-active:hover {
+    filter: brightness(1.08);
+  }
+
+  .tree-search-result-row:hover {
+    background: var(--surface-2);
+  }
 }
 
