@@ -69,6 +69,8 @@ export default function MentionField({
   const elRef = useRef(null);
   const panelRef = useRef(null);
   const composingRef = useRef(false);
+  const ignoreNextCompositionEndRef = useRef(false);
+  const lastRawRef = useRef(value ?? "");
   const [mention, setMention] = useState(null); // { node, start, end, query }
   const [highlight, setHighlight] = useState(0);
   const [pos, setPos] = useState(null);
@@ -104,10 +106,18 @@ export default function MentionField({
     const text = node.textContent;
     const caret = range.startOffset;
     let i = caret;
+    let consecutiveSpaces = 0;
     while (i > 0) {
       const ch = text[i - 1];
       if (ch === "@") return { node, start: i - 1, end: caret, query: text.slice(i, caret) };
-      if (/\s/.test(ch)) break;
+      if (ch === "\n") break;
+      // 스페이스 2개 연속이면 태그를 달 의사가 없는 것으로 보고 스캔을 멈춘다.
+      if (ch === " ") {
+        consecutiveSpaces++;
+        if (consecutiveSpaces >= 2) break;
+      } else {
+        consecutiveSpaces = 0;
+      }
       i--;
     }
     return null;
@@ -168,6 +178,7 @@ export default function MentionField({
     }
     const raw = serialize(el);
     el.classList.toggle("is-empty", !raw);
+    lastRawRef.current = raw;
     onInput(raw);
     // 조합 중에도 자동완성 패널은 계속 갱신한다 — 실제 DOM에 반영된 조합 중 텍스트를
     // 그대로 읽기만 할 뿐 변형하지 않으므로 조합을 방해하지 않는다.
@@ -192,7 +203,9 @@ export default function MentionField({
     const el = elRef.current;
     const term = opt.isAdd ? opt.term : opt;
     if (opt.isAdd) onAddTerm(term);
-    const { node, start, end } = mention;
+    // state의 mention은 마지막 렌더 시점 값이라 조합 입력 중엔 실제 캐럿보다 한 박자
+    // 늦을 수 있다 — 커밋 시점에 캐럿 위치를 다시 읽어 끝 글자 중복 삽입을 막는다.
+    const { node, start, end } = detectMention() ?? mention;
     const text = node.textContent;
     const before = text.slice(0, start);
     const after = text.slice(end);
@@ -215,6 +228,11 @@ export default function MentionField({
   }
 
   function handleKeyDown(e) {
+    // 한글 등 조합 입력 중에 눌리는 Enter는 IME가 조합을 확정하는 데도 쓰인다.
+    // 이걸 여기서 같이 처리하면(preventDefault로 막을 수 없는 조합 확정이 우리 커밋
+    // 처리 직후에 뒤늦게 일어나면서) 확정된 마지막 글자가 커밋된 칩 뒤에 한 번 더
+    // 삽입되어 버린다 — 조합 중에는 아무 것도 하지 않고 조합이 끝난 뒤 다시 누르게 한다.
+    if (e.isComposing) return;
     if (mention && options.length > 0) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -266,8 +284,36 @@ export default function MentionField({
         contentEditable
         onInput={handleInput}
         onKeyDown={handleKeyDown}
-        onCompositionStart={() => { composingRef.current = true; }}
-        onCompositionEnd={() => { composingRef.current = false; handleInput(); }}
+        onCompositionStart={() => {
+          composingRef.current = true;
+        }}
+        // Chrome 등 일부 브라우저는 contentEditable 조합 중에는 input 이벤트를
+        // 안정적으로 발생시키지 않는다(input/textarea와 달리) — compositionupdate를
+        // 직접 구독해 조합 중간 글자도 부모 상태(좌측 목록 등)에 실시간 반영되게 한다.
+        onCompositionUpdate={handleInput}
+        onCompositionEnd={() => {
+          if (ignoreNextCompositionEndRef.current) {
+            ignoreNextCompositionEndRef.current = false;
+            return;
+          }
+          composingRef.current = false;
+          handleInput();
+        }}
+        onBlur={() => {
+          if (!composingRef.current) return;
+          // 일부 브라우저는 조합 도중 blur가 발생하면 compositionend가 채 발화되기도
+          // 전에 DOM을 조합 시작 이전 상태로 되돌려버린다 — 이 시점에 el을 다시
+          // serialize()하면 이미 비워진/손상된 내용을 읽게 된다. 그래서 DOM을 다시
+          // 읽지 않고, 매 입력마다 갱신해 둔 lastRawRef(조합 중 마지막으로 확인된
+          // 온전한 값)를 그대로 커밋한다. 뒤이어 브라우저가 발생시키는 compositionend는
+          // 마찬가지로 손상된 DOM을 담고 있을 수 있어 무시한다.
+          composingRef.current = false;
+          ignoreNextCompositionEndRef.current = true;
+          const el = elRef.current;
+          const raw = lastRawRef.current;
+          el.classList.toggle("is-empty", !raw);
+          onInput(raw);
+        }}
       />
       {mention && pos && (
         <div
