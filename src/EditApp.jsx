@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "preact/hooks";
+import { useState, useMemo, useEffect, useRef } from "preact/hooks";
 import MENUS_DATA from "./data/menus.json";
 import { HELP_TEXTS } from "./data/helpTexts.js";
 import { SHORTCUTS } from "./data/shortcuts.js";
@@ -40,6 +40,12 @@ function getCascadeOptions(
   return options;
 }
 
+// 좌측 리스트 변경 표시 점: 세션 시작(또는 마지막 저장) 시점 대비 실제로 값이 달라졌을 때만 표시
+function ChangeDot({ isLive }) {
+  if (!isLive) return null;
+  return <span class="edit-mt-dot is-live" title="현재 변경한 내용이 있어요" />;
+}
+
 export default function EditApp({ onExit }) {
   const [tab, setTab] = useState(() => {
     const saved = sessionStorage.getItem("edit_tab");
@@ -62,6 +68,8 @@ export default function EditApp({ onExit }) {
   const [dirty, setDirty] = useState({
     permissions: {},
     menuOverrides: {},
+    permissionNames: {},
+    menuTitles: {},
   });
 
   // glossary tab state
@@ -81,24 +89,35 @@ export default function EditApp({ onExit }) {
     () =>
       allMenusFlat.map((m) => ({
         value: m.nodeId,
-        label: m.title,
+        label:
+          dirty.menuTitles[m.nodeId] ??
+          HELP_TEXTS.menuTitles?.[m.nodeId] ??
+          m.title,
         depth: m.depth,
         hidden: m.restricted,
       })),
-    [allMenusFlat],
+    [allMenusFlat, dirty.menuTitles],
   );
   const menuNameMap = useMemo(() => {
     const m = {};
-    for (const menu of MENUS_DATA.menus) m[menu.nodeId] = menu.title;
+    for (const menu of MENUS_DATA.menus)
+      m[menu.nodeId] =
+        dirty.menuTitles[menu.nodeId] ??
+        HELP_TEXTS.menuTitles?.[menu.nodeId] ??
+        menu.title;
     return m;
-  }, [menusVersion]);
+  }, [menusVersion, dirty.menuTitles]);
   const allPermItems = useMemo(
     () =>
       allLeaves.map((l) => ({
         value: l.code,
-        label: l.label ?? l.code,
+        label:
+          dirty.permissionNames[l.code] ??
+          HELP_TEXTS.permissionNames?.[l.code] ??
+          l.label ??
+          l.code,
       })),
-    [allLeaves],
+    [allLeaves, dirty.permissionNames],
   );
 
   const [dirtyShortcuts, setDirtyShortcuts] = useState({});
@@ -124,6 +143,79 @@ export default function EditApp({ onExit }) {
     structuredClone(MENUS_DATA.permissions),
   );
   const [isDirtyMenuTree, setIsDirtyMenuTree] = useState(false);
+  // 새로 추가되어 아직 menus.json에 없는 메뉴/권한의 이름 fallback 조회용(overlay 없을 때만 사용)
+  const draftLeaves = useMemo(() => flatPermissions(draftPerms), [draftPerms]);
+
+  // 좌측 리스트 변경 표시용 원본 스냅샷 — 편집 세션 시작 시점(또는 마지막 저장 시점) 기준
+  const baselineMenusRef = useRef(structuredClone(MENUS_DATA.menus));
+  const baselinePermsRef = useRef(structuredClone(MENUS_DATA.permissions));
+  const baselineShortcutsRef = useRef(structuredClone(SHORTCUTS));
+  const baselineGlossaryRef = useRef(structuredClone(GLOSSARY));
+
+  const changedMenuIds = useMemo(() => {
+    const baseMap = new Map(baselineMenusRef.current.map((m) => [m.nodeId, m]));
+    const changed = new Set();
+    for (const m of draftMenus) {
+      const base = baseMap.get(m.nodeId);
+      if (!base || JSON.stringify(m) !== JSON.stringify(base)) changed.add(m.nodeId);
+    }
+    for (const [nodeId, v] of Object.entries(dirty.menuTitles)) {
+      const baseline = HELP_TEXTS.menuTitles?.[nodeId] ?? baseMap.get(nodeId)?.title ?? "";
+      if ((v ?? "") !== baseline) changed.add(nodeId);
+    }
+    for (const [nodeId, v] of Object.entries(dirtyMenuDescs)) {
+      const baseline = HELP_TEXTS.menuDescriptions?.[nodeId] ?? baseMap.get(nodeId)?.label ?? "";
+      if ((v ?? "") !== baseline) changed.add(nodeId);
+    }
+    return changed;
+  }, [draftMenus, dirty.menuTitles, dirtyMenuDescs]);
+
+  const changedPermCodes = useMemo(() => {
+    const baseLeafMap = new Map(
+      flatPermissions(baselinePermsRef.current).map((l) => [l.code, l]),
+    );
+    const changed = new Set();
+    for (const l of draftLeaves) {
+      const base = baseLeafMap.get(l.code);
+      if (!base || JSON.stringify(l) !== JSON.stringify(base)) changed.add(l.code);
+    }
+    for (const [code, v] of Object.entries(dirty.permissionNames)) {
+      const baseline = HELP_TEXTS.permissionNames?.[code] ?? baseLeafMap.get(code)?.label ?? code;
+      if ((v ?? "") !== baseline) changed.add(code);
+    }
+    for (const [code, v] of Object.entries(dirty.permissions)) {
+      const baseline = HELP_TEXTS.permissions?.[code] ?? baseLeafMap.get(code)?.helpText ?? "";
+      if ((v ?? "") !== baseline) changed.add(code);
+    }
+    for (const [menuSeq, overrides] of Object.entries(dirty.menuOverrides)) {
+      const baseMenu = baselineMenusRef.current.find((m) => m.nodeId === menuSeq);
+      for (const [code, v] of Object.entries(overrides)) {
+        const baseline =
+          HELP_TEXTS.menuOverrides?.[menuSeq]?.[code] ?? baseMenu?.permissionHelpText?.[code] ?? "";
+        if ((v ?? "") !== baseline) changed.add(code);
+      }
+    }
+    return changed;
+  }, [draftLeaves, dirty.permissionNames, dirty.permissions, dirty.menuOverrides]);
+
+  // helpTexts.js에 이미 저장된(과거에 최소 1회 수정 후 저장된) 이력이 있는지 여부
+  const historyMenuIds = useMemo(() => {
+    const set = new Set();
+    for (const nodeId of Object.keys(HELP_TEXTS.menuTitles ?? {})) set.add(nodeId);
+    for (const nodeId of Object.keys(HELP_TEXTS.menuDescriptions ?? {})) set.add(nodeId);
+    for (const nodeId of Object.keys(HELP_TEXTS.menuOverrides ?? {})) set.add(nodeId);
+    return set;
+  }, [dirty, dirtyMenuDescs]);
+
+  const historyPermCodes = useMemo(() => {
+    const set = new Set();
+    for (const code of Object.keys(HELP_TEXTS.permissionNames ?? {})) set.add(code);
+    for (const code of Object.keys(HELP_TEXTS.permissions ?? {})) set.add(code);
+    for (const overrides of Object.values(HELP_TEXTS.menuOverrides ?? {})) {
+      for (const code of Object.keys(overrides)) set.add(code);
+    }
+    return set;
+  }, [dirty, dirtyMenuDescs]);
 
   function getPermItemsForShortcut(sc) {
     const seqs = new Set([
@@ -158,24 +250,11 @@ export default function EditApp({ onExit }) {
 
   const isDirtyHelpTexts =
     Object.keys(dirty.permissions).length > 0 ||
-    Object.keys(dirty.menuOverrides).length > 0;
-  const isDirtyShortcuts = Object.keys(dirtyShortcuts).length > 0;
+    Object.keys(dirty.menuOverrides).length > 0 ||
+    Object.keys(dirty.permissionNames).length > 0 ||
+    Object.keys(dirty.menuTitles).length > 0;
   const isDirtyMenuDescs = Object.keys(dirtyMenuDescs).length > 0;
   const isDirtyGlossary = Object.keys(dirtyGlossary).length > 0;
-  const isDirty =
-    isDirtyHelpTexts ||
-    isDirtyShortcuts ||
-    isDirtyMenuDescs ||
-    isDirtyGlossary ||
-    isDirtyMenuTree;
-
-  useEffect(() => {
-    function onBeforeUnload(e) {
-      if (isDirty) e.preventDefault();
-    }
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [isDirty]);
 
   // helpTexts helpers
   function currentBase(code) {
@@ -213,6 +292,36 @@ export default function EditApp({ onExit }) {
         ...prev.menuOverrides,
         [menuSeq]: { ...(prev.menuOverrides[menuSeq] ?? {}), [code]: val },
       },
+    }));
+  }
+
+  // 메뉴 이름 / 상세 권한 이름 override — menus.json은 재수집 시 통째로 갈아끼워지므로
+  // 이 이름 편집만은 helpTexts.js(menuTitles/permissionNames)에 별도 보관해 재수집을 견딘다.
+  function currentMenuTitle(nodeId) {
+    if (nodeId in dirty.menuTitles) return dirty.menuTitles[nodeId] ?? "";
+    if (HELP_TEXTS.menuTitles?.[nodeId] != null)
+      return HELP_TEXTS.menuTitles[nodeId];
+    return draftMenus.find((m) => m.nodeId === nodeId)?.title ?? "";
+  }
+
+  function onMenuTitleChange(nodeId, val) {
+    setDirty((prev) => ({
+      ...prev,
+      menuTitles: { ...prev.menuTitles, [nodeId]: val },
+    }));
+  }
+
+  function currentPermLabel(code) {
+    if (code in dirty.permissionNames) return dirty.permissionNames[code] ?? "";
+    if (HELP_TEXTS.permissionNames?.[code] != null)
+      return HELP_TEXTS.permissionNames[code];
+    return draftLeaves.find((l) => l.code === code)?.label ?? code;
+  }
+
+  function onPermLabelChange(code, val) {
+    setDirty((prev) => ({
+      ...prev,
+      permissionNames: { ...prev.permissionNames, [code]: val },
     }));
   }
 
@@ -349,6 +458,7 @@ export default function EditApp({ onExit }) {
     }
     for (const key of Object.keys(GLOSSARY)) delete GLOSSARY[key];
     for (const [key, val] of Object.entries(fullGlossary)) GLOSSARY[key] = val;
+    baselineGlossaryRef.current = structuredClone(GLOSSARY);
     setDirtyGlossary({});
   }
 
@@ -384,6 +494,8 @@ export default function EditApp({ onExit }) {
             MENUS_DATA.permissions.length,
             ...draftPerms,
           );
+          baselineMenusRef.current = structuredClone(draftMenus);
+          baselinePermsRef.current = structuredClone(draftPerms);
           setIsDirtyMenuTree(false);
           setMenusVersion((v) => v + 1);
         }
@@ -421,6 +533,20 @@ export default function EditApp({ onExit }) {
             // 빈 문자열도 명시 저장 — 삭제하면 menus.js의 description으로 폴백됨
             fullMenuDescriptions[seq] = v.trim();
           }
+          const fullMenuTitles = { ...(HELP_TEXTS.menuTitles ?? {}) };
+          for (const [nodeId, v] of Object.entries(dirty.menuTitles)) {
+            const trimmed = v.trim();
+            if (trimmed === "") delete fullMenuTitles[nodeId];
+            else fullMenuTitles[nodeId] = trimmed;
+          }
+          const fullPermissionNames = {
+            ...(HELP_TEXTS.permissionNames ?? {}),
+          };
+          for (const [code, v] of Object.entries(dirty.permissionNames)) {
+            const trimmed = v.trim();
+            if (trimmed === "") delete fullPermissionNames[code];
+            else fullPermissionNames[code] = trimmed;
+          }
 
           const res = await fetch("/__write-help-texts", {
             method: "POST",
@@ -429,6 +555,8 @@ export default function EditApp({ onExit }) {
               permissions: fullPermissions,
               menuOverrides: fullMenuOverrides,
               menuDescriptions: fullMenuDescriptions,
+              menuTitles: fullMenuTitles,
+              permissionNames: fullPermissionNames,
             }),
           });
           if (!res.ok) {
@@ -440,7 +568,14 @@ export default function EditApp({ onExit }) {
           HELP_TEXTS.permissions = fullPermissions;
           HELP_TEXTS.menuOverrides = fullMenuOverrides;
           HELP_TEXTS.menuDescriptions = fullMenuDescriptions;
-          setDirty({ permissions: {}, menuOverrides: {} });
+          HELP_TEXTS.menuTitles = fullMenuTitles;
+          HELP_TEXTS.permissionNames = fullPermissionNames;
+          setDirty({
+            permissions: {},
+            menuOverrides: {},
+            permissionNames: {},
+            menuTitles: {},
+          });
           setDirtyMenuDescs({});
         }
 
@@ -477,6 +612,7 @@ export default function EditApp({ onExit }) {
         for (const key of Object.keys(SHORTCUTS)) delete SHORTCUTS[key];
         for (const [seq, scs] of Object.entries(fullShortcuts))
           SHORTCUTS[seq] = scs;
+        baselineShortcutsRef.current = structuredClone(SHORTCUTS);
         setDirtyShortcuts({});
       }
       setSaveMsg({ type: "ok", text: "저장되었습니다" });
@@ -502,6 +638,18 @@ export default function EditApp({ onExit }) {
     });
   }, [allMenusFlat, menuSearch, dirtyShortcuts]);
 
+  // shortcuts tab: 세션 시작 시점 대비 실제로 키워드 목록이 바뀐 메뉴
+  const changedShortcutMenuSeqs = useMemo(() => {
+    const changed = new Set();
+    for (const m of allMenusFlat) {
+      const baseline = baselineShortcutsRef.current[String(m.nodeId)] ?? [];
+      const current = currentShortcuts(m.nodeId);
+      if (JSON.stringify(current) !== JSON.stringify(baseline))
+        changed.add(m.nodeId);
+    }
+    return changed;
+  }, [allMenusFlat, dirtyShortcuts]);
+
   const selectedMenuName = selectedMenuSeq
     ? (MENUS_DATA.menus.find((m) => m.nodeId === selectedMenuSeq)?.title ?? "")
     : "";
@@ -525,14 +673,47 @@ export default function EditApp({ onExit }) {
     );
   }, [allGlossaryTerms, glossarySearch, dirtyGlossary]);
 
+  // glossary tab: 세션 시작 시점 대비 실제로 설명이 바뀐(추가/삭제 포함) 용어
+  const changedGlossaryTerms = useMemo(() => {
+    const changed = new Set();
+    const terms = new Set([
+      ...Object.keys(baselineGlossaryRef.current),
+      ...allGlossaryTerms,
+    ]);
+    for (const term of terms) {
+      const baseline = baselineGlossaryRef.current[term] ?? null;
+      const current = currentGlossaryDesc(term) ?? null;
+      if (current !== baseline) changed.add(term);
+    }
+    return changed;
+  }, [allGlossaryTerms, dirtyGlossary]);
+
+  // 위 isDirtyXxx는 "필드를 건드렸는지"만 보는 얕은 판단이라, 입력했다가 원래 값으로
+  // 되돌려도 계속 true로 남는다. 좌측 리스트 점 표시·헤더 배지·저장 버튼 활성화는
+  // 실제로 원본과 값이 달라진 항목(changed*)이 있는지로 판단한다.
+  const hasRealMenuTreeChanges =
+    isDirtyMenuTree || changedMenuIds.size > 0 || changedPermCodes.size > 0;
+  const hasRealShortcutChanges = changedShortcutMenuSeqs.size > 0;
+  const hasRealGlossaryChanges = changedGlossaryTerms.size > 0;
+  const hasRealChanges =
+    hasRealMenuTreeChanges || hasRealShortcutChanges || hasRealGlossaryChanges;
+
   const currentTabIsDirty =
     tab === "shortcuts"
-      ? isDirtyShortcuts
+      ? hasRealShortcutChanges
       : tab === "glossary"
-        ? isDirtyGlossary
+        ? hasRealGlossaryChanges
         : tab === "menutree"
-          ? isDirtyMenuTree || isDirtyHelpTexts || isDirtyMenuDescs || isDirtyGlossary
+          ? hasRealMenuTreeChanges || hasRealGlossaryChanges
           : false;
+
+  useEffect(() => {
+    function onBeforeUnload(e) {
+      if (hasRealChanges) e.preventDefault();
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [hasRealChanges]);
 
   return (
     <div class="edit-app">
@@ -544,23 +725,21 @@ export default function EditApp({ onExit }) {
             onClick={() => setTab("menutree")}
           >
             메뉴/권한 구조
-            {(isDirtyMenuTree || isDirtyHelpTexts || isDirtyMenuDescs) && (
-              <span class="edit-tab-dot" />
-            )}
+            {hasRealMenuTreeChanges && <span class="edit-tab-dot" />}
           </button>
           <button
             class={`edit-tab${tab === "shortcuts" ? " is-active" : ""}`}
             onClick={() => setTab("shortcuts")}
           >
             키워드 묶음
-            {isDirtyShortcuts && <span class="edit-tab-dot" />}
+            {hasRealShortcutChanges && <span class="edit-tab-dot" />}
           </button>
           <button
             class={`edit-tab${tab === "glossary" ? " is-active" : ""}`}
             onClick={() => setTab("glossary")}
           >
             용어 사전
-            {isDirtyGlossary && <span class="edit-tab-dot" />}
+            {hasRealGlossaryChanges && <span class="edit-tab-dot" />}
           </button>
         </div>
         {saveMsg && (
@@ -573,7 +752,7 @@ export default function EditApp({ onExit }) {
             {saveMsg.text}
           </span>
         )}
-        {isDirty && !saveMsg && (
+        {hasRealChanges && !saveMsg && (
           <span class="edit-header-dirty">미저장 변경 있음</span>
         )}
         <button
@@ -614,6 +793,7 @@ export default function EditApp({ onExit }) {
                     <span
                       class={`edit-perm-dot${count > 0 ? " has-text" : ""}`}
                     />
+                    <ChangeDot isLive={changedShortcutMenuSeqs.has(m.nodeId)} />
                     <span class="edit-perm-name">{m.title}</span>
                     {m.restricted && <HiddenBadge />}
                     {count > 0 && <span class="edit-sc-count">{count}개</span>}
@@ -876,6 +1056,7 @@ export default function EditApp({ onExit }) {
                     <span
                       class={`edit-perm-dot${hasText ? " has-text" : ""}`}
                     />
+                    <ChangeDot isLive={changedGlossaryTerms.has(term)} />
                     <span class="edit-perm-name">{term}</span>
                   </div>
                 );
@@ -951,8 +1132,16 @@ export default function EditApp({ onExit }) {
           onMenuOverrideChange={onMenuOverrideChange}
           currentMenuDesc={currentMenuDesc}
           onMenuDescChange={onMenuDescChange}
+          currentMenuTitle={currentMenuTitle}
+          onMenuTitleChange={onMenuTitleChange}
+          currentPermLabel={currentPermLabel}
+          onPermLabelChange={onPermLabelChange}
           glossaryTerms={allGlossaryTerms}
           onAddGlossaryTerm={addGlossaryTerm}
+          changedMenuIds={changedMenuIds}
+          changedPermCodes={changedPermCodes}
+          historyMenuIds={historyMenuIds}
+          historyPermCodes={historyPermCodes}
         />
       ) : null}
     </div>

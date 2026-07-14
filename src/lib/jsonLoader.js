@@ -21,7 +21,9 @@ export function parseMenus(raw) {
   const permMap = {}
   for (const node of leaves) {
     permMap[node.code] = {
-      label: node.label ?? node.code,
+      // helpTexts.js(permissionNames) 우선 — 재수집으로 menus.json이 통째로 갈아끼워져도
+      // 편집기에서 바꾼 권한 이름은 유지된다.
+      label: HELP_TEXTS.permissionNames?.[node.code] ?? node.label ?? node.code,
       requiresApproval: node.approvalNeeded ?? false,
       // helpTexts.js 우선, 없으면 menus.json 인라인 값 fallback
       helpText: HELP_TEXTS.permissions[node.code] ?? node.helpText ?? null,
@@ -35,7 +37,9 @@ export function parseMenus(raw) {
     const menuOverrides = { ...inlineOverrides, ...overlayOverrides }
     return {
       nodeId: m.nodeId,
-      title: m.title,
+      // helpTexts.js(menuTitles) 우선 — 재수집으로 menus.json이 통째로 갈아끼워져도
+      // 편집기에서 바꾼 메뉴 이름은 유지된다.
+      title: HELP_TEXTS.menuTitles?.[String(m.nodeId)] ?? m.title,
       label: HELP_TEXTS.menuDescriptions[String(m.nodeId)] ?? m.label ?? null,
       parentId: m.parentId ?? null,
       restricted: m.restricted ?? false,

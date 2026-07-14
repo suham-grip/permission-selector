@@ -5,7 +5,7 @@ import { getDescendantIds, buildTree } from "./lib/tree.js";
 import { HiddenBadge, flatPermissions, MultiSelect } from "./lib/editShared.jsx";
 import { ChevronIcon, PlusIcon, TrashIcon, GripIcon } from "./components/icons.jsx";
 import MentionField from "./components/MentionField.jsx";
-import { parseGlossaryText, stripGlossaryMarkers } from "./lib/glossary.jsx";
+import { stripGlossaryMarkers } from "./lib/glossary.jsx";
 
 function genMenuId(existingIds) {
   let id;
@@ -22,9 +22,16 @@ function genMenuTitle(siblingTitles) {
   return `새 메뉴(${n})`;
 }
 
+// 좌측 리스트 변경 표시 점: 현재 세션에서 바꾼 게 있으면 우선 표시, 없으면 과거 저장 이력만 표시
+function ChangeDot({ isLive, isHistory }) {
+  if (isLive) return <span class="edit-mt-dot is-live" title="현재 변경한 내용이 있어요" />;
+  if (isHistory) return <span class="edit-mt-dot is-history" title="이전에 저장된 변경 이력이 있어요" />;
+  return null;
+}
+
 function MenuTreeRow({
   node, depth, openMap, setOpenMap, selectedMenuId, onSelect,
-  onAddChild, onDelete,
+  onAddChild, onDelete, titleFor, changedMenuIds, historyMenuIds,
   draggedId, draggedDescendantIds, dragOver, onDragStartRow, onDragOverRow, onDropRow, onDragEndRow,
 }) {
   const hasChildren = node.nodes.length > 0;
@@ -73,7 +80,8 @@ function MenuTreeRow({
           {hasChildren && <ChevronIcon />}
         </span>
 
-        <span class="edit-mt-node-title">{node.title}</span>
+        <ChangeDot isLive={changedMenuIds.has(node.nodeId)} isHistory={historyMenuIds.has(node.nodeId)} />
+        <span class="edit-mt-node-title">{titleFor(node.nodeId)}</span>
 
         {node.restricted && <HiddenBadge />}
 
@@ -109,6 +117,9 @@ function MenuTreeRow({
           onSelect={onSelect}
           onAddChild={onAddChild}
           onDelete={onDelete}
+          titleFor={titleFor}
+          changedMenuIds={changedMenuIds}
+          historyMenuIds={historyMenuIds}
           draggedId={draggedId}
           draggedDescendantIds={draggedDescendantIds}
           dragOver={dragOver}
@@ -122,8 +133,10 @@ function MenuTreeRow({
   );
 }
 
+// 리프는 nodes가 비어있는 노드(flatPermissions와 동일 기준) — 실데이터에는 그룹
+// 노드도 label(placeholder)을 갖는 경우가 있어 "label" 존재 여부로는 구분할 수 없다.
 function isGroupNode(node) {
-  return !("label" in node);
+  return (node.nodes?.length ?? 0) > 0;
 }
 
 function updateLeafByCode(nodes, code, patch) {
@@ -170,7 +183,9 @@ export default function EditMenuTreeTab({
   draftMenus, setDraftMenus, draftPerms, setDraftPerms, markDirty,
   currentBase, onBaseChange,
   currentMenuOverride, onMenuOverrideChange, currentMenuDesc, onMenuDescChange,
+  currentMenuTitle, onMenuTitleChange, currentPermLabel, onPermLabelChange,
   glossaryTerms, onAddGlossaryTerm,
+  changedMenuIds, changedPermCodes, historyMenuIds, historyPermCodes,
 }) {
   const [subView, setSubView] = useState(
     () => sessionStorage.getItem("edit_mt_subview") || "menu",
@@ -214,9 +229,9 @@ export default function EditMenuTreeTab({
   const permItems = useMemo(
     () => allLeaves.map(l => ({
       value: l.code,
-      label: l.label ?? l.code,
+      label: currentPermLabel(l.code),
     })),
-    [allLeaves],
+    [allLeaves, currentPermLabel],
   );
 
   const selectedMenu = selectedMenuId ? draftMenus.find(m => m.nodeId === selectedMenuId) : null;
@@ -417,6 +432,9 @@ export default function EditMenuTreeTab({
                 onSelect={selectMenu}
                 onAddChild={addMenu}
                 onDelete={deleteMenu}
+                titleFor={currentMenuTitle}
+                changedMenuIds={changedMenuIds}
+                historyMenuIds={historyMenuIds}
                 draggedId={draggedId}
                 draggedDescendantIds={draggedDescendantIds}
                 dragOver={dragOver}
@@ -433,7 +451,8 @@ export default function EditMenuTreeTab({
                 class={`edit-perm-row${selectedPermCode === l.code ? " is-active" : ""}`}
                 onClick={() => selectPerm(l.code)}
               >
-                <span class="edit-perm-name">{stripGlossaryMarkers(l.label ?? l.code)}</span>
+                <ChangeDot isLive={changedPermCodes.has(l.code)} isHistory={historyPermCodes.has(l.code)} />
+                <span class="edit-perm-name">{stripGlossaryMarkers(currentPermLabel(l.code))}</span>
                 <span class="edit-perm-code">{l.code.slice(0, 10)}</span>
               </div>
             ))
@@ -447,16 +466,42 @@ export default function EditMenuTreeTab({
             <div class="edit-form-empty">좌측에서 메뉴를 선택하면 편집할 수 있습니다.</div>
           ) : (
             <>
-              <p class="edit-form-title">{selectedMenu.title}</p>
-              <p class="edit-form-code">{selectedMenu.nodeId}</p>
+              <div class="edit-form-header">
+                <div class="edit-form-heading">
+                  <p class="edit-form-title">{currentMenuTitle(selectedMenu.nodeId)}</p>
+                  <p class="edit-form-code">{selectedMenu.nodeId}</p>
+                </div>
+                <div class="edit-form-header-actions">
+                  <label
+                    class="edit-list-filter"
+                    title="숨김 메뉴 (좌측 메뉴에 노출하지 않고, 다른 페이지의 링크로만 접근)"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!selectedMenu.restricted}
+                      onChange={e => updateMenu(selectedMenu.nodeId, { restricted: e.target.checked })}
+                    />
+                    숨김 메뉴
+                  </label>
+                  <button
+                    class="edit-sc-delete-btn edit-form-delete-btn"
+                    disabled={hasChildren(selectedMenu.nodeId)}
+                    title={hasChildren(selectedMenu.nodeId) ? "하위 메뉴가 있으면 삭제할 수 없어요." : undefined}
+                    onClick={() => deleteMenu(selectedMenu.nodeId)}
+                  >
+                    <TrashIcon />
+                    삭제
+                  </button>
+                </div>
+              </div>
 
               <div class="edit-field">
                 <label class="edit-field-label">메뉴 이름</label>
                 <input
                   class="edit-textarea"
                   style={{ minHeight: "auto" }}
-                  value={selectedMenu.title}
-                  onInput={e => updateMenu(selectedMenu.nodeId, { title: e.target.value })}
+                  value={currentMenuTitle(selectedMenu.nodeId)}
+                  onInput={e => onMenuTitleChange(selectedMenu.nodeId, e.target.value)}
                 />
               </div>
 
@@ -485,7 +530,7 @@ export default function EditMenuTreeTab({
                   {draftMenus
                     .filter(m => m.nodeId !== selectedMenu.nodeId && !getDescendantIds(draftMenus, selectedMenu.nodeId).includes(m.nodeId))
                     .map(m => (
-                      <option key={m.nodeId} value={m.nodeId}>{m.title}</option>
+                      <option key={m.nodeId} value={m.nodeId}>{currentMenuTitle(m.nodeId)}</option>
                     ))}
                 </select>
               </div>
@@ -506,14 +551,6 @@ export default function EditMenuTreeTab({
                 />
               </div>
 
-              <label class="edit-list-filter" style={{ marginBottom: "20px" }}>
-                <input
-                  type="checkbox"
-                  checked={!!selectedMenu.restricted}
-                  onChange={e => updateMenu(selectedMenu.nodeId, { restricted: e.target.checked || undefined })}
-                />
-                숨김 메뉴 (좌측 메뉴에 노출하지 않고, 다른 페이지의 링크로만 접근)
-              </label>
             </>
           )
         ) : (
@@ -521,10 +558,28 @@ export default function EditMenuTreeTab({
             <div class="edit-form-empty">좌측에서 상세 권한을 선택하면 편집할 수 있습니다.</div>
           ) : (
             <>
-              <p class="edit-form-title">
-                {parseGlossaryText(selectedLeaf.label, null, { edit: true }).nodes}
-              </p>
-              <p class="edit-form-code">{selectedLeaf.code}</p>
+              <div class="edit-form-header">
+                <div class="edit-form-heading">
+                  <p class="edit-form-title">{stripGlossaryMarkers(currentPermLabel(selectedLeaf.code))}</p>
+                  <p class="edit-form-code">{selectedLeaf.code}</p>
+                </div>
+                <div class="edit-form-header-actions">
+                  <label class="edit-list-filter">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedLeaf.approvalNeeded}
+                      onChange={e =>
+                        updatePermLeaf(selectedLeaf.code, { approvalNeeded: e.target.checked || undefined })
+                      }
+                    />
+                    보안담당자 결재 필요
+                  </label>
+                  <button class="edit-sc-delete-btn edit-form-delete-btn" onClick={() => deletePermission(selectedLeaf.code)}>
+                    <TrashIcon />
+                    삭제
+                  </button>
+                </div>
+              </div>
 
               <div class="edit-field">
                 <label class="edit-field-label">권한 이름</label>
@@ -536,8 +591,8 @@ export default function EditMenuTreeTab({
                 <MentionField
                   class="edit-textarea"
                   style={{ minHeight: "auto" }}
-                  value={selectedLeaf.label}
-                  onInput={val => updatePermLeaf(selectedLeaf.code, { label: val })}
+                  value={currentPermLabel(selectedLeaf.code)}
+                  onInput={val => onPermLabelChange(selectedLeaf.code, val)}
                   terms={glossaryTerms}
                   onAddTerm={onAddGlossaryTerm}
                 />
@@ -568,13 +623,13 @@ export default function EditMenuTreeTab({
                   {menusForSelectedPerm.map(menu => (
                     <div key={menu.nodeId} class="edit-menu-group">
                       <div class="edit-menu-group-label">
-                        {menu.title}
+                        {currentMenuTitle(menu.nodeId)}
                         {menu.restricted && <span class="edit-menu-hidden-tag">hidden</span>}
                       </div>
                       <MentionField
                         as="textarea"
                         class="edit-textarea"
-                        placeholder={`${menu.title} 페이지에서만 보이는 추가 설명`}
+                        placeholder={`${currentMenuTitle(menu.nodeId)} 페이지에서만 보이는 추가 설명`}
                         value={currentMenuOverride(menu.nodeId, selectedLeaf.code)}
                         onInput={val => onMenuOverrideChange(menu.nodeId, selectedLeaf.code, val)}
                         terms={glossaryTerms}
@@ -585,20 +640,6 @@ export default function EditMenuTreeTab({
                 </>
               )}
 
-              <label class="edit-list-filter" style={{ marginBottom: "20px" }}>
-                <input
-                  type="checkbox"
-                  checked={!!selectedLeaf.approvalNeeded}
-                  onChange={e => updatePermLeaf(selectedLeaf.code, { approvalNeeded: e.target.checked || undefined })}
-                />
-                보안담당자 결재 필요
-              </label>
-
-              <hr class="edit-section-divider" />
-
-              <button class="edit-sc-delete-btn" onClick={() => deletePermission(selectedLeaf.code)}>
-                이 상세 권한 삭제
-              </button>
             </>
           )
         )}

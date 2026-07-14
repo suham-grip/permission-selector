@@ -8,11 +8,13 @@ export const HELP_TEXTS = {
     "p_admin_log_view": "접속 로그에는 개인정보가 포함되어 있어 결재가 필요합니다",
     "p_return_refund": "환불 처리는 회계팀 결재를 거쳐야 최종 승인됩니다"
   },
+  "permissionNames": {},
   "menuOverrides": {
     "m_mouse_firmware": {
       "p_mouse_fw_download": "이 메뉴에서는 최신 마우스 펌웨어 바이너리를 다운로드합니다"
     }
   },
+  "menuTitles": {},
   "menuDescriptions": {
     "m_mouse_spec": "마우스의 [[스위치]], 센서, [[그립 형태]], 색상 등 제품 스펙을 관리하는 페이지",
     "m_mouse_packaging": "마우스 제품 박스, 완충재 등 패키징 사양을 관리하는 페이지",
