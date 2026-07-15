@@ -34,11 +34,11 @@ function renderContactFile(data) {
 // 복원에 실패해 실데이터를 영구히 잃은 사고가 있었기 때문에, 실데이터 경로의 파일 시스템 쓰기는
 // 이 프로젝트에서 절대 금지 사항이다.
 const SAMPLE_DATA_FILES = [
-  ["src/data/menus.json", "src/data/menus.sample.json"],
-  ["src/data/shortcuts.js", "src/data/shortcuts.sample.js"],
-  ["src/data/glossary.js", "src/data/glossary.sample.js"],
-  ["src/data/helpTexts.js", "src/data/helpTexts.sample.js"],
-  ["src/data/contact.js", "src/data/contact.sample.js"],
+  ["src/data/menus.json", "src/data/samples/menus.sample.json"],
+  ["src/data/shortcuts.js", "src/data/samples/shortcuts.sample.js"],
+  ["src/data/glossary.js", "src/data/samples/glossary.sample.js"],
+  ["src/data/helpTexts.js", "src/data/samples/helpTexts.sample.js"],
+  ["src/data/contact.js", "src/data/samples/contact.sample.js"],
 ];
 
 const IS_SAMPLE_MODE = process.env.DEV_SAMPLE === "1";
@@ -201,6 +201,11 @@ function helpTextWriter() {
 
 export default defineConfig({
   plugins: [preact(), viteSingleFile(), sampleDataResolver(), helpTextWriter()],
+  define: {
+    // 샘플 모드 전용 UI(SampleModeSwitcher)를 게이팅하는 빌드 타임 플래그.
+    // 실빌드에서는 리터럴 false로 치환되어 관련 코드가 통째로 트리셰이킹된다.
+    "import.meta.env.IS_SAMPLE_MODE": JSON.stringify(IS_SAMPLE_MODE),
+  },
   build: {
     reportCompressedSize: true,
   },

@@ -30,6 +30,10 @@ const EditApp = import.meta.env.DEV
   ? lazy(() => import("./EditApp.jsx"))
   : null;
 
+const SampleModeSwitcher = import.meta.env.IS_SAMPLE_MODE
+  ? lazy(() => import("./components/SampleModeSwitcher.jsx"))
+  : null;
+
 const LAYOUT_STACKED_KEY = "layout_stacked";
 const LAYOUT_SPLIT_KEY = "layout_split_pct";
 const SPLIT_MIN = 20;
@@ -402,6 +406,11 @@ export default function App() {
           <button class="app-action-btn" onClick={() => setShowContact(true)}>
             문의사항
           </button>
+          {import.meta.env.IS_SAMPLE_MODE && SampleModeSwitcher && (
+            <Suspense fallback={null}>
+              <SampleModeSwitcher dispatch={dispatch} />
+            </Suspense>
+          )}
           {import.meta.env.DEV && (
             <button class="app-action-btn" onClick={() => setEditing(true)}>
               편집

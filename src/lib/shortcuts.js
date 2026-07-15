@@ -1,4 +1,4 @@
-import { SHORTCUTS } from "../data/shortcuts.js";
+import { getActiveShortcuts } from "./activeDataset.js";
 
 export function getExplicitCascades(sc) {
   const cascades = [];
@@ -7,7 +7,7 @@ export function getExplicitCascades(sc) {
     if (colonIdx === -1) continue;
     const cascadeMenuSeq = cascadeChipKey.slice(0, colonIdx);
     const cascadeLabel = cascadeChipKey.slice(colonIdx + 1);
-    const shortcuts = SHORTCUTS[cascadeMenuSeq] ?? [];
+    const shortcuts = getActiveShortcuts()[cascadeMenuSeq] ?? [];
     const cascadeSc = shortcuts.find((s) => s.label === cascadeLabel);
     if (!cascadeSc) continue;
     const cascadeEffective = {

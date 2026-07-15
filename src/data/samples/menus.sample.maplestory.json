@@ -1,0 +1,175 @@
+{
+  "collectedAt": "2026-01-01T00:00:00.000Z",
+  "menus": [
+    { "nodeId": "m_character", "title": "캐릭터 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_char_status", "title": "능력치 관리", "parentId": "m_character", "restricted": false, "scopeRefs": ["p_char_stat_view", "p_char_stat_reset"] },
+    { "nodeId": "m_char_ability", "title": "어빌리티 관리", "parentId": "m_character", "restricted": false, "scopeRefs": ["p_char_ability_view", "p_char_ability_edit"] },
+    { "nodeId": "m_char_item_equip", "title": "장착 아이템 관리", "parentId": "m_character", "restricted": false, "scopeRefs": ["p_char_equip_view", "p_char_equip_edit"] },
+
+    { "nodeId": "m_guild", "title": "길드 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_guild_info", "title": "길드 정보 관리", "parentId": "m_guild", "restricted": false, "scopeRefs": ["p_guild_info_view", "p_guild_info_edit"] },
+    { "nodeId": "m_guild_member", "title": "길드원 관리", "parentId": "m_guild", "restricted": false, "scopeRefs": ["p_guild_member_view", "p_guild_member_kick"] },
+
+    { "nodeId": "m_economy", "title": "아이템/경제 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_item_db", "title": "아이템 DB 관리", "parentId": "m_economy", "restricted": false, "scopeRefs": ["p_item_db_view", "p_item_db_edit"] },
+    { "nodeId": "m_item_enchant", "title": "강화/잠재능력 관리", "parentId": "m_economy", "restricted": false, "scopeRefs": ["p_item_enchant_view", "p_item_enchant_edit", "p_item_enchant_reroll"] },
+    { "nodeId": "m_meso", "title": "메소 관리", "parentId": "m_economy", "restricted": false, "scopeRefs": ["p_meso_view", "p_meso_adjust"] },
+
+    { "nodeId": "m_cashshop", "title": "캐시샵 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_cash_product", "title": "캐시 상품 관리", "parentId": "m_cashshop", "restricted": false, "scopeRefs": ["p_cash_product_view", "p_cash_product_edit"] },
+    { "nodeId": "m_cash_grant", "title": "캐시 지급/환불 관리", "parentId": "m_cashshop", "restricted": false, "scopeRefs": ["p_cash_grant_view", "p_cash_grant_process"] },
+
+    { "nodeId": "m_server", "title": "월드/채널 서버 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_server_status", "title": "서버 상태 관리", "parentId": "m_server", "restricted": false, "scopeRefs": ["p_server_status_view", "p_server_restart"] },
+    { "nodeId": "m_server_maintenance", "title": "점검 공지 관리", "parentId": "m_server", "restricted": false, "scopeRefs": ["p_server_maint_view", "p_server_maint_edit"] },
+
+    { "nodeId": "m_moderation", "title": "모니터링/제재 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_mod_report", "title": "신고 접수 관리", "parentId": "m_moderation", "restricted": false, "scopeRefs": ["p_mod_report_view", "p_mod_report_process"] },
+    { "nodeId": "m_mod_chat_log", "title": "채팅 로그 관리", "parentId": "m_moderation", "restricted": true, "scopeRefs": ["p_mod_chatlog_view"] },
+    { "nodeId": "m_mod_sanction", "title": "계정 제재 관리", "parentId": "m_moderation", "restricted": false, "scopeRefs": ["p_mod_sanction_view", "p_mod_sanction_ban", "p_mod_sanction_unban"] },
+    { "nodeId": "m_mod_hack_detect", "title": "핵/매크로 탐지 관리", "parentId": "m_moderation", "restricted": false, "scopeRefs": ["p_mod_hack_view", "p_mod_hack_edit"] },
+
+    { "nodeId": "m_event", "title": "이벤트 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_event_field", "title": "필드 이벤트 관리", "parentId": "m_event", "restricted": false, "scopeRefs": ["p_event_field_view", "p_event_field_edit", "p_event_field_publish"] },
+    { "nodeId": "m_event_reward", "title": "이벤트 보상 관리", "parentId": "m_event", "restricted": false, "scopeRefs": ["p_event_reward_view", "p_event_reward_edit"] },
+
+    { "nodeId": "m_admin", "title": "이용자 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_admin_account", "title": "GM 계정 관리", "parentId": "m_admin", "restricted": false, "scopeRefs": ["p_admin_account_view", "p_admin_account_edit"] },
+    { "nodeId": "m_admin_role", "title": "권한 그룹 관리", "parentId": "m_admin", "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_admin_role_list", "title": "그룹 목록 관리", "parentId": "m_admin_role", "restricted": false, "scopeRefs": ["p_admin_role_view", "p_admin_role_edit"] },
+    { "nodeId": "m_admin_role_matrix", "title": "권한 매트릭스 관리", "parentId": "m_admin_role", "restricted": false, "scopeRefs": ["p_admin_matrix_view", "p_admin_matrix_edit"] },
+
+    { "nodeId": "m_map", "title": "맵 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_map_info", "title": "맵 정보 관리", "parentId": "m_map", "restricted": false, "scopeRefs": ["p_map_info_view", "p_map_info_edit"] },
+    { "nodeId": "m_map_spawn", "title": "몬스터 스폰 관리", "parentId": "m_map", "restricted": false, "scopeRefs": ["p_map_spawn_view", "p_map_spawn_edit"] },
+    { "nodeId": "m_map_portal", "title": "포탈 관리", "parentId": "m_map", "restricted": false, "scopeRefs": ["p_map_portal_view", "p_map_portal_edit"] },
+    { "nodeId": "m_map_access", "title": "입장 제한 관리", "parentId": "m_map", "restricted": false, "scopeRefs": ["p_map_access_view", "p_map_access_edit"] },
+
+    { "nodeId": "m_job", "title": "직업 관리", "parentId": null, "restricted": false, "scopeRefs": [] },
+    { "nodeId": "m_job_balance", "title": "직업 밸런스 관리", "parentId": "m_job", "restricted": false, "scopeRefs": ["p_job_balance_view", "p_job_balance_edit"] },
+    { "nodeId": "m_job_change", "title": "전직 관리", "parentId": "m_job", "restricted": false, "scopeRefs": ["p_job_change_view", "p_job_change_force"] },
+    { "nodeId": "m_job_skill", "title": "스킬 데이터 관리", "parentId": "m_job", "restricted": false, "scopeRefs": ["p_job_skill_view", "p_job_skill_edit"] },
+    { "nodeId": "m_job_hyper", "title": "하이퍼스탯 관리", "parentId": "m_job", "restricted": false, "scopeRefs": ["p_job_hyper_view", "p_job_hyper_reset"] }
+  ],
+  "permissions": [
+    { "code": "p_group_char_status", "nodes": [
+      { "code": "p_char_stat_view", "label": "캐릭터 능력치/[[링크스킬]] 레벨 조회", "nodes": [] },
+      { "code": "p_char_stat_reset", "label": "캐릭터 [[스텟 초기화]] 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_char_ability", "nodes": [
+      { "code": "p_char_ability_view", "label": "[[어빌리티]] 조회", "nodes": [] },
+      { "code": "p_char_ability_edit", "label": "[[유니온]] 어빌리티 재설정 처리", "nodes": [] }
+    ]},
+    { "code": "p_group_char_equip", "nodes": [
+      { "code": "p_char_equip_view", "label": "장착 아이템 조회", "nodes": [] },
+      { "code": "p_char_equip_edit", "label": "장착 아이템([[드메]] 등 무기) 강제 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_guild_info", "nodes": [
+      { "code": "p_guild_info_view", "label": "길드 정보 조회", "nodes": [] },
+      { "code": "p_guild_info_edit", "label": "길드 정보 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_guild_member", "nodes": [
+      { "code": "p_guild_member_view", "label": "길드원 명단 조회", "nodes": [] },
+      { "code": "p_guild_member_kick", "label": "길드원 강제 추방 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_item_db", "nodes": [
+      { "code": "p_item_db_view", "label": "아이템 DB 조회", "nodes": [] },
+      { "code": "p_item_db_edit", "label": "아이템 DB 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_item_enchant", "nodes": [
+      { "code": "p_item_enchant_view", "label": "[[스타포스]]/[[잠재능력]] 강화 이력 조회", "nodes": [] },
+      { "code": "p_item_enchant_edit", "label": "스타포스 강화 확률 조정", "approvalNeeded": true, "nodes": [] },
+      { "code": "p_item_enchant_reroll", "label": "잠재능력 [[주문서]] 리롤 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_meso", "nodes": [
+      { "code": "p_meso_view", "label": "[[메소]] 보유량 조회", "nodes": [] },
+      { "code": "p_meso_adjust", "label": "메소 강제 지급/회수", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_cash_product", "nodes": [
+      { "code": "p_cash_product_view", "label": "캐시 상품 조회", "nodes": [] },
+      { "code": "p_cash_product_edit", "label": "캐시 상품 등록/수정", "nodes": [] }
+    ]},
+    { "code": "p_group_cash_grant", "nodes": [
+      { "code": "p_cash_grant_view", "label": "캐시 지급/환불 내역 조회", "nodes": [] },
+      { "code": "p_cash_grant_process", "label": "캐시 강제 지급/환불 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_server_status", "nodes": [
+      { "code": "p_server_status_view", "label": "서버 상태 조회", "nodes": [] },
+      { "code": "p_server_restart", "label": "서버 강제 재시작 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_server_maintenance", "nodes": [
+      { "code": "p_server_maint_view", "label": "점검 공지 조회", "nodes": [] },
+      { "code": "p_server_maint_edit", "label": "점검 공지 등록/수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_mod_report", "nodes": [
+      { "code": "p_mod_report_view", "label": "신고 접수 조회", "nodes": [] },
+      { "code": "p_mod_report_process", "label": "신고 처리", "nodes": [] }
+    ]},
+    { "code": "p_group_mod_chat_log", "nodes": [
+      { "code": "p_mod_chatlog_view", "label": "채팅 로그(개인정보 포함) 조회", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_mod_sanction", "nodes": [
+      { "code": "p_mod_sanction_view", "label": "계정 제재 이력 조회", "nodes": [] },
+      { "code": "p_mod_sanction_ban", "label": "계정 정지 처리", "approvalNeeded": true, "nodes": [] },
+      { "code": "p_mod_sanction_unban", "label": "계정 정지 해제 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_mod_hack", "nodes": [
+      { "code": "p_mod_hack_view", "label": "핵/매크로 탐지 로그 조회", "nodes": [] },
+      { "code": "p_mod_hack_edit", "label": "핵/매크로 탐지 규칙 수정", "nodes": [] }
+    ]},
+    { "code": "p_group_event_field", "nodes": [
+      { "code": "p_event_field_view", "label": "필드 이벤트 조회", "nodes": [] },
+      { "code": "p_event_field_edit", "label": "필드 이벤트([[검은마법사]] 특별전 등) 수정", "nodes": [] },
+      { "code": "p_event_field_publish", "label": "필드 이벤트 전체 게시 승인", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_event_reward", "nodes": [
+      { "code": "p_event_reward_view", "label": "이벤트 보상 조회", "nodes": [] },
+      { "code": "p_event_reward_edit", "label": "이벤트 보상([[익월]] 지급 포함) 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_admin_account", "nodes": [
+      { "code": "p_admin_account_view", "label": "[[GM]] 계정 조회", "nodes": [] },
+      { "code": "p_admin_account_edit", "label": "GM 계정 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_admin_role", "nodes": [
+      { "code": "p_admin_role_view", "label": "권한 그룹 목록 조회", "nodes": [] },
+      { "code": "p_admin_role_edit", "label": "권한 그룹 목록 수정", "nodes": [] },
+      { "code": "p_admin_matrix_view", "label": "[[권한 매트릭스]] 조회", "nodes": [] },
+      { "code": "p_admin_matrix_edit", "label": "권한 매트릭스 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_map_info", "nodes": [
+      { "code": "p_map_info_view", "label": "맵 정보 조회", "nodes": [] },
+      { "code": "p_map_info_edit", "label": "맵 정보([[히든 포탈]] 포함) 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_map_spawn", "nodes": [
+      { "code": "p_map_spawn_view", "label": "몬스터 [[몹 리젠]] 설정 조회", "nodes": [] },
+      { "code": "p_map_spawn_edit", "label": "몬스터 [[몹 리젠]] 설정 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_map_portal", "nodes": [
+      { "code": "p_map_portal_view", "label": "포탈 연결 정보 조회", "nodes": [] },
+      { "code": "p_map_portal_edit", "label": "포탈([[히든 포탈]] 포함) 연결 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_map_access", "nodes": [
+      { "code": "p_map_access_view", "label": "[[인스턴스 던전]] 입장 조건 조회", "nodes": [] },
+      { "code": "p_map_access_edit", "label": "[[인스턴스 던전]] 입장 조건 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_job_balance", "nodes": [
+      { "code": "p_job_balance_view", "label": "직업별 [[스킬 계수]] 조회", "nodes": [] },
+      { "code": "p_job_balance_edit", "label": "직업별 [[스킬 계수]] 조정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_job_change", "nodes": [
+      { "code": "p_job_change_view", "label": "[[전직]] 이력 조회", "nodes": [] },
+      { "code": "p_job_change_force", "label": "캐릭터 강제 [[전직]] 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_job_skill", "nodes": [
+      { "code": "p_job_skill_view", "label": "스킬 데이터 조회", "nodes": [] },
+      { "code": "p_job_skill_edit", "label": "스킬 데이터(쿨타임/범위) 수정", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_job_hyper", "nodes": [
+      { "code": "p_job_hyper_view", "label": "[[하이퍼스탯]] 분배 조회", "nodes": [] },
+      { "code": "p_job_hyper_reset", "label": "[[하이퍼스탯]] 강제 초기화 처리", "approvalNeeded": true, "nodes": [] }
+    ]},
+    { "code": "p_group_misc", "nodes": [
+      { "code": "p_orphan_beta_dungeon", "label": "베타 던전 기능 조회", "nodes": [] }
+    ]}
+  ]
+}

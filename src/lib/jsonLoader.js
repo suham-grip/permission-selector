@@ -1,5 +1,5 @@
-import { HELP_TEXTS } from '../data/helpTexts.js'
-import { SHORTCUTS } from '../data/shortcuts.js'
+import { HELP_TEXTS as DEFAULT_HELP_TEXTS } from '../data/helpTexts.js'
+import { getActiveShortcuts } from './activeDataset.js'
 
 // PermNode 트리에서 DFS로 leaf(nodes 없거나 빈 배열) 노드만 추출
 function flatPermissions(nodes) {
@@ -14,8 +14,10 @@ function flatPermissions(nodes) {
   return result
 }
 
-export function parseMenus(raw) {
+export function parseMenus(raw, { helpTexts = DEFAULT_HELP_TEXTS } = {}) {
   const data = typeof raw === 'string' ? JSON.parse(raw) : raw
+  const HELP_TEXTS = helpTexts
+  const SHORTCUTS = getActiveShortcuts()
 
   const leaves = flatPermissions(data.permissions ?? [])
   const permMap = {}

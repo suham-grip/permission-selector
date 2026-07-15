@@ -527,6 +527,11 @@ body {
   flex-shrink: 0;
 }
 
+.sample-mode-switcher {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
 /* 터치 기기에서 탭 후 hover가 눌러붙는(sticky hover) 현상 방지 —
    실제 마우스 hover가 가능한 기기에서만 아래 hover 스타일을 적용한다 */
 @media (hover: hover) and (pointer: fine) {

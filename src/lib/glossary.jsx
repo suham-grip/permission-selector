@@ -1,4 +1,4 @@
-import { GLOSSARY } from "../data/glossary.js";
+import { getActiveGlossary } from "./activeDataset.js";
 import { highlight } from "./text.jsx";
 
 // "[[용어]]" 마커를 파싱해 표시용 노드와 등장한 용어 목록을 함께 반환한다.
@@ -18,7 +18,7 @@ export function parseGlossaryText(text, query, opts) {
       nodes.push(highlight(text.slice(lastEnd, m.index), query));
     }
     const term = m[1];
-    if (GLOSSARY[term] != null) {
+    if (getActiveGlossary()[term] != null) {
       nodes.push(
         <span class={edit ? "glossary-term-edit" : "glossary-term"} key={key++}>
           {edit ? "@" : ""}
@@ -61,7 +61,7 @@ function expandGlossaryTerms(initialTerms) {
   while (queue.length > 0) {
     const term = queue.shift();
     result.push(term);
-    const { terms: nested } = parseGlossaryText(GLOSSARY[term]);
+    const { terms: nested } = parseGlossaryText(getActiveGlossary()[term]);
     for (const t of nested) {
       if (seen.has(t)) continue;
       seen.add(t);
@@ -83,7 +83,7 @@ export function GlossaryNotes({ terms, withDivider = true }) {
           <span class="glossary-note-row" key={term}>
             <span class="glossary-note-term">{term}</span>
             <span class="glossary-note-desc">
-              {parseGlossaryText(GLOSSARY[term]).nodes}
+              {parseGlossaryText(getActiveGlossary()[term]).nodes}
             </span>
           </span>
         ))}
