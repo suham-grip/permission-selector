@@ -3,6 +3,7 @@ import MENUS_DATA from "./data/menus.json";
 import { HELP_TEXTS } from "./data/helpTexts.js";
 import { SHORTCUTS } from "./data/shortcuts.js";
 import { GLOSSARY } from "./data/glossary.js";
+import { CONTACT } from "./data/contact.js";
 import {
   HiddenBadge,
   flatPermissions,
@@ -71,6 +72,9 @@ export default function EditApp({ onExit }) {
     permissionNames: {},
     menuTitles: {},
   });
+
+  // contact tab state
+  const [dirtyContact, setDirtyContact] = useState({});
 
   // glossary tab state
   const [dirtyGlossary, setDirtyGlossary] = useState({});
@@ -151,6 +155,7 @@ export default function EditApp({ onExit }) {
   const baselinePermsRef = useRef(structuredClone(MENUS_DATA.permissions));
   const baselineShortcutsRef = useRef(structuredClone(SHORTCUTS));
   const baselineGlossaryRef = useRef(structuredClone(GLOSSARY));
+  const baselineContactRef = useRef(structuredClone(CONTACT));
 
   const changedMenuIds = useMemo(() => {
     const baseMap = new Map(baselineMenusRef.current.map((m) => [m.nodeId, m]));
@@ -338,6 +343,16 @@ export default function EditApp({ onExit }) {
     setDirtyMenuDescs((prev) => ({ ...prev, [String(menuSeq)]: val }));
   }
 
+  // contact helpers
+  function currentContactField(key) {
+    if (key in dirtyContact) return dirtyContact[key] ?? "";
+    return CONTACT[key] ?? "";
+  }
+
+  function onContactFieldChange(key, val) {
+    setDirtyContact((prev) => ({ ...prev, [key]: val }));
+  }
+
   // glossary helpers
   function currentGlossaryDesc(term) {
     if (term in dirtyGlossary) return dirtyGlossary[term];
@@ -441,6 +456,23 @@ export default function EditApp({ onExit }) {
   }
 
   // save
+  async function saveContact() {
+    const fullContact = { ...CONTACT, ...dirtyContact };
+    const res = await fetch("/__write-contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fullContact),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.error);
+    }
+    for (const key of Object.keys(CONTACT)) delete CONTACT[key];
+    for (const [key, val] of Object.entries(fullContact)) CONTACT[key] = val;
+    baselineContactRef.current = structuredClone(CONTACT);
+    setDirtyContact({});
+  }
+
   async function saveGlossary() {
     const fullGlossary = { ...GLOSSARY };
     for (const [term, desc] of Object.entries(dirtyGlossary)) {
@@ -469,6 +501,8 @@ export default function EditApp({ onExit }) {
     try {
       if (tab === "glossary") {
         await saveGlossary();
+      } else if (tab === "contact") {
+        await saveContact();
       } else if (tab === "menutree") {
         if (isDirtyMenuTree) {
           const payload = {
@@ -695,17 +729,30 @@ export default function EditApp({ onExit }) {
     isDirtyMenuTree || changedMenuIds.size > 0 || changedPermCodes.size > 0;
   const hasRealShortcutChanges = changedShortcutMenuSeqs.size > 0;
   const hasRealGlossaryChanges = changedGlossaryTerms.size > 0;
+  const contactKeys = new Set([
+    ...Object.keys(baselineContactRef.current),
+    ...Object.keys(dirtyContact),
+  ]);
+  const hasRealContactChanges = [...contactKeys].some(
+    (key) =>
+      currentContactField(key) !== (baselineContactRef.current[key] ?? ""),
+  );
   const hasRealChanges =
-    hasRealMenuTreeChanges || hasRealShortcutChanges || hasRealGlossaryChanges;
+    hasRealMenuTreeChanges ||
+    hasRealShortcutChanges ||
+    hasRealGlossaryChanges ||
+    hasRealContactChanges;
 
   const currentTabIsDirty =
     tab === "shortcuts"
       ? hasRealShortcutChanges
       : tab === "glossary"
         ? hasRealGlossaryChanges
-        : tab === "menutree"
-          ? hasRealMenuTreeChanges || hasRealGlossaryChanges
-          : false;
+        : tab === "contact"
+          ? hasRealContactChanges
+          : tab === "menutree"
+            ? hasRealMenuTreeChanges || hasRealGlossaryChanges
+            : false;
 
   useEffect(() => {
     function onBeforeUnload(e) {
@@ -740,6 +787,13 @@ export default function EditApp({ onExit }) {
           >
             용어 사전
             {hasRealGlossaryChanges && <span class="edit-tab-dot" />}
+          </button>
+          <button
+            class={`edit-tab${tab === "contact" ? " is-active" : ""}`}
+            onClick={() => setTab("contact")}
+          >
+            담당자 정보
+            {hasRealContactChanges && <span class="edit-tab-dot" />}
           </button>
         </div>
         {saveMsg && (
@@ -1117,6 +1171,47 @@ export default function EditApp({ onExit }) {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      ) : tab === "contact" ? (
+        <div class="edit-body">
+          <div class="edit-form-col" style={{ flex: 1 }}>
+            <p class="edit-form-title">담당자 정보</p>
+            <p class="edit-form-code">
+              화면 하단 "문의사항" 모달에 표시되는 안내 문구와 바로가기 링크예요.
+            </p>
+
+            <div class="edit-field">
+              <label class="edit-field-label">안내 문구</label>
+              <span class="edit-field-sub">
+                모달에 "문의사항" 제목과 함께 표시되는 한 줄 설명이에요.
+              </span>
+              <input
+                class="edit-textarea"
+                style={{ minHeight: "auto" }}
+                type="text"
+                placeholder="예: 담당자에게 문의해주세요"
+                value={currentContactField("subtitle")}
+                onInput={(e) =>
+                  onContactFieldChange("subtitle", e.target.value)
+                }
+              />
+            </div>
+
+            <div class="edit-field">
+              <label class="edit-field-label">바로가기 링크</label>
+              <span class="edit-field-sub">
+                "바로가기" 버튼 클릭 시 이동할 URL이에요 (Slack DM, 메일 링크 등).
+              </span>
+              <input
+                class="edit-textarea"
+                style={{ minHeight: "auto" }}
+                type="text"
+                placeholder="https://..."
+                value={currentContactField("href")}
+                onInput={(e) => onContactFieldChange("href", e.target.value)}
+              />
+            </div>
           </div>
         </div>
       ) : tab === "menutree" ? (
