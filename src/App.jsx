@@ -20,6 +20,9 @@ import OnboardingTour, {
 import {
   LayoutSideBySideIcon,
   LayoutStackedIcon,
+  HelpIcon,
+  ContactIcon,
+  EditIcon,
 } from "./components/icons.jsx";
 
 let toastIdSeq = 0;
@@ -400,11 +403,23 @@ export default function App() {
               {layoutStacked ? <LayoutSideBySideIcon /> : <LayoutStackedIcon />}
             </button>
           )}
-          <button class="app-action-btn" onClick={startTour}>
-            이용 가이드
+          <button
+            class="app-action-btn"
+            onClick={startTour}
+            aria-label="이용 가이드"
+            title="이용 가이드"
+          >
+            <HelpIcon />
+            <span class="app-action-label">이용 가이드</span>
           </button>
-          <button class="app-action-btn" onClick={() => setShowContact(true)}>
-            문의사항
+          <button
+            class="app-action-btn"
+            onClick={() => setShowContact(true)}
+            aria-label="문의사항"
+            title="문의사항"
+          >
+            <ContactIcon />
+            <span class="app-action-label">문의사항</span>
           </button>
           {import.meta.env.IS_SAMPLE_MODE && SampleModeSwitcher && (
             <Suspense fallback={null}>
@@ -412,8 +427,14 @@ export default function App() {
             </Suspense>
           )}
           {import.meta.env.DEV && (
-            <button class="app-action-btn" onClick={() => setEditing(true)}>
-              편집
+            <button
+              class="app-action-btn"
+              onClick={() => setEditing(true)}
+              aria-label="편집"
+              title="편집"
+            >
+              <EditIcon />
+              <span class="app-action-label">편집</span>
             </button>
           )}
         </div>

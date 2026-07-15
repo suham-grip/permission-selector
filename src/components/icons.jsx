@@ -101,3 +101,46 @@ export function LayoutStackedIcon() {
     </svg>
   );
 }
+
+export function HelpIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+    >
+      <circle cx="8" cy="8" r="6.5" />
+      <path d="M6 6.2a2 2 0 013.8.9c0 1.3-1.8 1.6-1.8 3" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="8" cy="11.6" r="0.15" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function ContactIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+    >
+      <rect x="1.5" y="3" width="13" height="10" rx="1.5" />
+      <path d="M2.2 4l5.8 4.5L13.8 4" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  );
+}
+
+export function EditIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+    >
+      <path d="M10.5 2.5l3 3L4.5 14.5H1.5v-3z" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M9 4l3 3" stroke-linecap="round" />
+    </svg>
+  );
+}

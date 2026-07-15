@@ -492,6 +492,9 @@ body {
 }
 
 .app-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 5px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -502,6 +505,12 @@ body {
   cursor: pointer;
   letter-spacing: 0.02em;
   transition: background 0.15s;
+}
+
+.app-action-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .app-action-btn.layout-toggle-btn {
@@ -530,6 +539,35 @@ body {
 .sample-mode-switcher {
   appearance: none;
   -webkit-appearance: none;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 767px) {
+  .header-actions {
+    gap: 4px;
+  }
+
+  .app-action-btn {
+    padding: 6px;
+  }
+
+  .app-action-label {
+    display: none;
+  }
+
+  .app-action-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .sample-mode-switcher {
+    max-width: 72px;
+    padding: 6px 4px;
+    font-size: 11px;
+  }
 }
 
 /* 터치 기기에서 탭 후 hover가 눌러붙는(sticky hover) 현상 방지 —
