@@ -124,10 +124,16 @@ export default function MentionField({
   }
 
   function updateMentionPanel() {
+    const prev = mention;
     const m = detectMention();
     setMention(m);
     setHighlight(0);
     if (!m) return;
+    // 패널 위치는 캐럿이 아니라 "@" 문자 위치(m.start)를 기준으로 고정되므로, 같은
+    // 멘션 세션 안에서 검색어만 바뀔 때는 앵커가 그대로다. getBoundingClientRect()는
+    // 강제 동기 레이아웃을 유발해 큰 트리가 함께 마운트된 페이지에서 체감 가능한
+    // 입력 지연을 만들므로, 세션이 바뀔 때(다른 "@" 또는 새 세션 시작)만 재계산한다.
+    if (prev && prev.node === m.node && prev.start === m.start) return;
     const range = document.createRange();
     range.setStart(m.node, m.start);
     range.setEnd(m.node, m.start);

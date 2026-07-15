@@ -1,4 +1,5 @@
-import { useState, useMemo } from "preact/hooks";
+import { useState, useMemo, useCallback } from "preact/hooks";
+import { memo } from "preact/compat";
 import { HELP_TEXTS } from "./data/helpTexts.js";
 import { SHORTCUTS } from "./data/shortcuts.js";
 import { getDescendantIds, buildTree } from "./lib/tree.js";
@@ -33,14 +34,57 @@ function ChangeDot({ isLive, isHistory }) {
   return <span class={`edit-mt-dot${cls}`} title={title} />;
 }
 
-function MenuTreeRow({
-  node, depth, openMap, setOpenMap, selectedMenuId, onSelect,
+// 트리를 그대로 재귀 렌더하면(부모 MenuTreeRow가 자식 <MenuTreeRow>를 자기 몸통 안에서
+// 생성) 상위 행이 memo로 리렌더를 건너뛰는 순간 그 아래 자식들은 새로 생성될 기회조차
+// 없어 update가 유실된다. 그래서 트리를 openMap 기준으로 미리 평탄화한 목록으로 렌더하고,
+// 각 행은 형제 관계 없이 독립적으로 memo 비교를 받는다.
+function flattenVisibleMenuTree(nodes, openMap, depth = 0, out = []) {
+  for (const node of nodes) {
+    const hasChildren = node.nodes.length > 0;
+    const isOpen = openMap[node.nodeId] !== false;
+    out.push({ node, depth, hasChildren, isOpen });
+    if (hasChildren && isOpen) flattenVisibleMenuTree(node.nodes, openMap, depth + 1, out);
+  }
+  return out;
+}
+
+// titleFor/changedMenuIds/historyMenuIds는 값 자체가 아니라 "조회 방법"을 담은
+// 함수/Set이라 타이핑할 때마다 참조가 바뀐다(EditApp.jsx의 currentMenuTitle 등 참고).
+// 참조 비교 대신 이 행의 nodeId 하나에 대해서만 실제 조회 결과가 바뀌었는지 비교해,
+// 편집 중인 행 하나만 리렌더되고 나머지 461개는 건너뛰도록 한다.
+function menuRowPropsEqual(prev, next) {
+  if (
+    prev.node !== next.node ||
+    prev.depth !== next.depth ||
+    prev.hasChildren !== next.hasChildren ||
+    prev.isOpen !== next.isOpen ||
+    prev.setOpenMap !== next.setOpenMap ||
+    prev.onSelect !== next.onSelect ||
+    prev.onAddChild !== next.onAddChild ||
+    prev.onDelete !== next.onDelete ||
+    prev.onDragStartRow !== next.onDragStartRow ||
+    prev.onDragOverRow !== next.onDragOverRow ||
+    prev.onDropRow !== next.onDropRow ||
+    prev.onDragEndRow !== next.onDragEndRow ||
+    prev.draggedId !== next.draggedId ||
+    prev.draggedDescendantIds !== next.draggedDescendantIds ||
+    prev.dragOver !== next.dragOver
+  ) {
+    return false;
+  }
+  const id = next.node.nodeId;
+  if ((prev.selectedMenuId === id) !== (next.selectedMenuId === id)) return false;
+  if (prev.titleFor(id) !== next.titleFor(id)) return false;
+  if (prev.changedMenuIds.has(id) !== next.changedMenuIds.has(id)) return false;
+  if (prev.historyMenuIds.has(id) !== next.historyMenuIds.has(id)) return false;
+  return true;
+}
+
+const MenuTreeRow = memo(function MenuTreeRow({
+  node, depth, hasChildren, isOpen, setOpenMap, selectedMenuId, onSelect,
   onAddChild, onDelete, titleFor, changedMenuIds, historyMenuIds,
   draggedId, draggedDescendantIds, dragOver, onDragStartRow, onDragOverRow, onDropRow, onDragEndRow,
 }) {
-  const hasChildren = node.nodes.length > 0;
-  const isOpen = openMap[node.nodeId] !== false;
-
   const isDropTarget = dragOver?.nodeId === node.nodeId;
   const canDropHere = draggedId != null && draggedId !== node.nodeId && !draggedDescendantIds.has(node.nodeId);
 
@@ -109,33 +153,9 @@ function MenuTreeRow({
           </button>
         </span>
       </div>
-
-      {hasChildren && isOpen && node.nodes.map(child => (
-        <MenuTreeRow
-          key={child.nodeId}
-          node={child}
-          depth={depth + 1}
-          openMap={openMap}
-          setOpenMap={setOpenMap}
-          selectedMenuId={selectedMenuId}
-          onSelect={onSelect}
-          onAddChild={onAddChild}
-          onDelete={onDelete}
-          titleFor={titleFor}
-          changedMenuIds={changedMenuIds}
-          historyMenuIds={historyMenuIds}
-          draggedId={draggedId}
-          draggedDescendantIds={draggedDescendantIds}
-          dragOver={dragOver}
-          onDragStartRow={onDragStartRow}
-          onDragOverRow={onDragOverRow}
-          onDropRow={onDropRow}
-          onDragEndRow={onDragEndRow}
-        />
-      ))}
     </div>
   );
-}
+}, menuRowPropsEqual);
 
 // 리프는 nodes가 비어있는 노드(flatPermissions와 동일 기준) — 실데이터에는 그룹
 // 노드도 label(placeholder)을 갖는 경우가 있어 "label" 존재 여부로는 구분할 수 없다.
@@ -211,11 +231,12 @@ export default function EditMenuTreeTab({
     setSubView(v);
     sessionStorage.setItem("edit_mt_subview", v);
   }
-  function selectMenu(id) {
+  // MenuTreeRow(memo)에 onSelect로 전달되므로 useCallback으로 참조를 고정한다.
+  const selectMenu = useCallback((id) => {
     setSelectedMenuId(id);
     if (id) sessionStorage.setItem("edit_mt_selectedMenu", id);
     else sessionStorage.removeItem("edit_mt_selectedMenu");
-  }
+  }, []);
   function selectPerm(code) {
     setSelectedPermCode(code);
     if (code) sessionStorage.setItem("edit_mt_selectedPerm", code);
@@ -223,6 +244,10 @@ export default function EditMenuTreeTab({
   }
 
   const menuTree = useMemo(() => buildTree(draftMenus), [draftMenus]);
+  const visibleMenuRows = useMemo(
+    () => flattenVisibleMenuTree(menuTree, openMap),
+    [menuTree, openMap],
+  );
   const draggedDescendantIds = useMemo(
     () => (draggedId ? new Set(getDescendantIds(draftMenus, draggedId)) : new Set()),
     [draggedId, draftMenus],
@@ -254,7 +279,8 @@ export default function EditMenuTreeTab({
     markDirty();
   }
 
-  function addMenu(parentId) {
+  // MenuTreeRow(memo)에 onAddChild/onDelete로 전달되므로 useCallback으로 참조를 고정한다.
+  const addMenu = useCallback((parentId) => {
     const nodeId = genMenuId(new Set(draftMenus.map(m => m.nodeId)));
     const siblingTitles = draftMenus.filter(m => m.parentId === parentId).map(m => m.title);
     const title = genMenuTitle(siblingTitles);
@@ -262,10 +288,10 @@ export default function EditMenuTreeTab({
     markDirty();
     if (parentId) setOpenMap(prev => ({ ...prev, [parentId]: true }));
     selectMenu(nodeId);
-  }
+  }, [draftMenus, markDirty, selectMenu]);
 
-  function deleteMenu(nodeId) {
-    if (hasChildren(nodeId)) return;
+  const deleteMenu = useCallback((nodeId) => {
+    if (draftMenus.some(m => m.parentId === nodeId)) return;
     const refs = checkMenuExternalRefs(nodeId);
     const warn = refs.length
       ? `\n\n주의: ${refs.join(", ")}에 이 메뉴에 대한 데이터가 남아있습니다. 삭제해도 해당 데이터는 자동으로 정리되지 않으니 필요하면 각 탭에서 직접 정리해 주세요.`
@@ -274,7 +300,7 @@ export default function EditMenuTreeTab({
     setDraftMenus(prev => prev.filter(m => m.nodeId !== nodeId));
     markDirty();
     if (selectedMenuId === nodeId) selectMenu(null);
-  }
+  }, [draftMenus, markDirty, selectedMenuId, selectMenu]);
 
   function moveMenu(nodeId, targetId, position) {
     if (nodeId === targetId) return;
@@ -308,24 +334,25 @@ export default function EditMenuTreeTab({
     markDirty();
   }
 
-  function handleDragStartRow(nodeId) {
+  // 아래 네 핸들러도 MenuTreeRow(memo)에 props로 내려가므로 useCallback으로 고정한다.
+  const handleDragStartRow = useCallback((nodeId) => {
     setDraggedId(nodeId);
-  }
+  }, []);
 
-  function handleDragOverRow(nodeId, position) {
+  const handleDragOverRow = useCallback((nodeId, position) => {
     setDragOver(prev => (prev?.nodeId === nodeId && prev?.position === position ? prev : { nodeId, position }));
-  }
+  }, []);
 
-  function handleDropRow() {
+  const handleDropRow = useCallback(() => {
     if (draggedId && dragOver) moveMenu(draggedId, dragOver.nodeId, dragOver.position);
     setDraggedId(null);
     setDragOver(null);
-  }
+  }, [draggedId, dragOver, draftMenus, markDirty]);
 
-  function handleDragEndRow() {
+  const handleDragEndRow = useCallback(() => {
     setDraggedId(null);
     setDragOver(null);
-  }
+  }, []);
 
   function confirmAddPerm() {
     const code = newPermCode.trim();
@@ -425,12 +452,13 @@ export default function EditMenuTreeTab({
 
         <div class="edit-list-scroll">
           {subView === "menu" ? (
-            menuTree.map(node => (
+            visibleMenuRows.map(({ node, depth, hasChildren, isOpen }) => (
               <MenuTreeRow
                 key={node.nodeId}
                 node={node}
-                depth={0}
-                openMap={openMap}
+                depth={depth}
+                hasChildren={hasChildren}
+                isOpen={isOpen}
                 setOpenMap={setOpenMap}
                 selectedMenuId={selectedMenuId}
                 onSelect={selectMenu}

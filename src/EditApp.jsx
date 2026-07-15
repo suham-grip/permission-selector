@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "preact/hooks";
+import { useState, useMemo, useEffect, useRef, useCallback } from "preact/hooks";
 import MENUS_DATA from "./data/menus.json";
 import { HELP_TEXTS } from "./data/helpTexts.js";
 import { SHORTCUTS } from "./data/shortcuts.js";
@@ -51,6 +51,9 @@ export default function EditApp({ onExit }) {
 
   // menutree 저장 후 MENUS_DATA가 in-place로 바뀌면, 아래 useMemo들을 다시 계산시키기 위한 카운터
   const [menusVersion, setMenusVersion] = useState(0);
+  // helpTexts.js 저장 후 HELP_TEXTS가 in-place로 바뀌면, historyMenuIds/historyPermCodes를
+  // 다시 계산시키기 위한 카운터
+  const [helpTextsVersion, setHelpTextsVersion] = useState(0);
 
   // menudescs state (메뉴/권한 구조 탭의 메뉴 설명 편집에서 사용)
   const [dirtyMenuDescs, setDirtyMenuDescs] = useState({});
@@ -141,6 +144,7 @@ export default function EditApp({ onExit }) {
     structuredClone(MENUS_DATA.permissions),
   );
   const [isDirtyMenuTree, setIsDirtyMenuTree] = useState(false);
+  const markMenuTreeDirty = useCallback(() => setIsDirtyMenuTree(true), []);
   // 새로 추가되어 아직 menus.json에 없는 메뉴/권한의 이름 fallback 조회용(overlay 없을 때만 사용)
   const draftLeaves = useMemo(() => flatPermissions(draftPerms), [draftPerms]);
 
@@ -151,43 +155,63 @@ export default function EditApp({ onExit }) {
   const baselineGlossaryRef = useRef(structuredClone(GLOSSARY));
   const baselineContactRef = useRef(structuredClone(CONTACT));
 
-  const changedMenuIds = useMemo(() => {
-    const baseMap = new Map(baselineMenusRef.current.map((m) => [m.nodeId, m]));
+  // baseline Map은 baselineMenusRef/baselinePermsRef가 바뀌지 않는 한(=편집 세션·저장 시점
+  // 고정) 재생성할 필요가 없다. 아래 구조적 변경 검사(JSON.stringify 비교, 462개 메뉴 전수 순회)는
+  // draftMenus/draftLeaves가 실제로 바뀔 때만(메뉴 추가·삭제·이동 등) 재계산하고, 필드별 dirty 값
+  // 비교(메뉴 이름/설명 등 타이핑 중 매 키 입력마다 바뀌는 값)는 별도의 가벼운 useMemo로 분리해
+  // 매 키 입력마다 전체 트리를 JSON.stringify로 비교하는 비용을 없앤다.
+  const baselineMenuMap = useMemo(
+    () => new Map(baselineMenusRef.current.map((m) => [m.nodeId, m])),
+    [],
+  );
+  const baselineLeafMap = useMemo(
+    () => new Map(flatPermissions(baselinePermsRef.current).map((l) => [l.code, l])),
+    [],
+  );
+
+  const structuralChangedMenuIds = useMemo(() => {
     const changed = new Set();
     for (const m of draftMenus) {
-      const base = baseMap.get(m.nodeId);
+      const base = baselineMenuMap.get(m.nodeId);
       if (!base || JSON.stringify(m) !== JSON.stringify(base)) changed.add(m.nodeId);
     }
+    return changed;
+  }, [draftMenus, baselineMenuMap]);
+
+  const changedMenuIds = useMemo(() => {
+    const changed = new Set(structuralChangedMenuIds);
     for (const [nodeId, v] of Object.entries(dirty.menuTitles)) {
-      const baseline = HELP_TEXTS.menuTitles?.[nodeId] ?? baseMap.get(nodeId)?.title ?? "";
+      const baseline = HELP_TEXTS.menuTitles?.[nodeId] ?? baselineMenuMap.get(nodeId)?.title ?? "";
       if ((v ?? "") !== baseline) changed.add(nodeId);
     }
     for (const [nodeId, v] of Object.entries(dirtyMenuDescs)) {
-      const baseline = HELP_TEXTS.menuDescriptions?.[nodeId] ?? baseMap.get(nodeId)?.label ?? "";
+      const baseline = HELP_TEXTS.menuDescriptions?.[nodeId] ?? baselineMenuMap.get(nodeId)?.label ?? "";
       if ((v ?? "") !== baseline) changed.add(nodeId);
     }
     return changed;
-  }, [draftMenus, dirty.menuTitles, dirtyMenuDescs]);
+  }, [structuralChangedMenuIds, dirty.menuTitles, dirtyMenuDescs, baselineMenuMap]);
 
-  const changedPermCodes = useMemo(() => {
-    const baseLeafMap = new Map(
-      flatPermissions(baselinePermsRef.current).map((l) => [l.code, l]),
-    );
+  const structuralChangedPermCodes = useMemo(() => {
     const changed = new Set();
     for (const l of draftLeaves) {
-      const base = baseLeafMap.get(l.code);
+      const base = baselineLeafMap.get(l.code);
       if (!base || JSON.stringify(l) !== JSON.stringify(base)) changed.add(l.code);
     }
+    return changed;
+  }, [draftLeaves, baselineLeafMap]);
+
+  const changedPermCodes = useMemo(() => {
+    const changed = new Set(structuralChangedPermCodes);
     for (const [code, v] of Object.entries(dirty.permissionNames)) {
-      const baseline = HELP_TEXTS.permissionNames?.[code] ?? baseLeafMap.get(code)?.label ?? code;
+      const baseline = HELP_TEXTS.permissionNames?.[code] ?? baselineLeafMap.get(code)?.label ?? code;
       if ((v ?? "") !== baseline) changed.add(code);
     }
     for (const [code, v] of Object.entries(dirty.permissions)) {
-      const baseline = HELP_TEXTS.permissions?.[code] ?? baseLeafMap.get(code)?.helpText ?? "";
+      const baseline = HELP_TEXTS.permissions?.[code] ?? baselineLeafMap.get(code)?.helpText ?? "";
       if ((v ?? "") !== baseline) changed.add(code);
     }
     for (const [menuSeq, overrides] of Object.entries(dirty.menuOverrides)) {
-      const baseMenu = baselineMenusRef.current.find((m) => m.nodeId === menuSeq);
+      const baseMenu = baselineMenuMap.get(menuSeq);
       for (const [code, v] of Object.entries(overrides)) {
         const baseline =
           HELP_TEXTS.menuOverrides?.[menuSeq]?.[code] ?? baseMenu?.permissionHelpText?.[code] ?? "";
@@ -195,16 +219,20 @@ export default function EditApp({ onExit }) {
       }
     }
     return changed;
-  }, [draftLeaves, dirty.permissionNames, dirty.permissions, dirty.menuOverrides]);
+  }, [structuralChangedPermCodes, dirty.permissionNames, dirty.permissions, dirty.menuOverrides, baselineMenuMap, baselineLeafMap]);
 
-  // helpTexts.js에 이미 저장된(과거에 최소 1회 수정 후 저장된) 이력이 있는지 여부
+  // helpTexts.js에 이미 저장된(과거에 최소 1회 수정 후 저장된) 이력이 있는지 여부.
+  // HELP_TEXTS는 외부 mutable 객체라 자체적으로 리렌더를 유발하지 않으므로, 저장 직후
+  // helpTextsVersion을 올려 재계산시킨다 — dirty/dirtyMenuDescs를 deps로 쓰면 이 값과
+  // 무관한 키 입력마다(예: 상세 권한 텍스트 수정) 매번 새 Set이 생성돼 메뉴 트리 전체가
+  // 리렌더된다.
   const historyMenuIds = useMemo(() => {
     const set = new Set();
     for (const nodeId of Object.keys(HELP_TEXTS.menuTitles ?? {})) set.add(nodeId);
     for (const nodeId of Object.keys(HELP_TEXTS.menuDescriptions ?? {})) set.add(nodeId);
     for (const nodeId of Object.keys(HELP_TEXTS.menuOverrides ?? {})) set.add(nodeId);
     return set;
-  }, [dirty, dirtyMenuDescs]);
+  }, [helpTextsVersion]);
 
   const historyPermCodes = useMemo(() => {
     const set = new Set();
@@ -214,7 +242,7 @@ export default function EditApp({ onExit }) {
       for (const code of Object.keys(overrides)) set.add(code);
     }
     return set;
-  }, [dirty, dirtyMenuDescs]);
+  }, [helpTextsVersion]);
 
   function getPermItemsForShortcut(sc) {
     const seqs = new Set([
@@ -256,35 +284,61 @@ export default function EditApp({ onExit }) {
   const isDirtyGlossary = Object.keys(dirtyGlossary).length > 0;
 
   // helpTexts helpers
-  function currentBase(code) {
-    if (code in dirty.permissions) return dirty.permissions[code] ?? "";
-    return (
-      HELP_TEXTS.permissions[code] ??
-      allLeaves.find((l) => l.code === code)?.helpText ??
-      ""
-    );
-  }
+  // 아래 current*/on*Change 콜백들은 메뉴/권한 구조 탭의 트리 행(462개 안팎)에 props로
+  // 전달된다. useCallback 없이 매 렌더마다 새 함수를 만들면 참조가 매번 달라져,
+  // 트리 행에 적용한 memo가 무력화되고 관련 없는 필드를 편집할 때도 트리 전체가
+  // 리렌더된다(EditMenuTreeTab.jsx의 MenuTreeRow 참고). 아래 조회용 Map들도 같은 이유로
+  // Array.find 대신 사용 — find는 각 행마다 O(n)이라 462개 행 전체를 순회하면 O(n^2)가 된다.
+  const allLeavesByCode = useMemo(
+    () => new Map(allLeaves.map((l) => [l.code, l])),
+    [allLeaves],
+  );
+  const menusDataByNodeId = useMemo(
+    () => new Map(MENUS_DATA.menus.map((m) => [m.nodeId, m])),
+    [menusVersion],
+  );
+  const draftMenusByNodeId = useMemo(
+    () => new Map(draftMenus.map((m) => [m.nodeId, m])),
+    [draftMenus],
+  );
+  const draftLeavesByCode = useMemo(
+    () => new Map(draftLeaves.map((l) => [l.code, l])),
+    [draftLeaves],
+  );
 
-  function currentMenuOverride(menuSeq, code) {
-    const menuDirty = dirty.menuOverrides[menuSeq];
-    if (menuDirty && code in menuDirty) return menuDirty[code] ?? "";
-    return (
-      HELP_TEXTS.menuOverrides[String(menuSeq)]?.[code] ??
-      MENUS_DATA.menus.find((m) => m.nodeId === menuSeq)?.permissionHelpText?.[
-        code
-      ] ??
-      ""
-    );
-  }
+  const currentBase = useCallback(
+    (code) => {
+      if (code in dirty.permissions) return dirty.permissions[code] ?? "";
+      return (
+        HELP_TEXTS.permissions[code] ??
+        allLeavesByCode.get(code)?.helpText ??
+        ""
+      );
+    },
+    [dirty.permissions, allLeavesByCode],
+  );
 
-  function onBaseChange(code, val) {
+  const currentMenuOverride = useCallback(
+    (menuSeq, code) => {
+      const menuDirty = dirty.menuOverrides[menuSeq];
+      if (menuDirty && code in menuDirty) return menuDirty[code] ?? "";
+      return (
+        HELP_TEXTS.menuOverrides[String(menuSeq)]?.[code] ??
+        menusDataByNodeId.get(menuSeq)?.permissionHelpText?.[code] ??
+        ""
+      );
+    },
+    [dirty.menuOverrides, menusDataByNodeId],
+  );
+
+  const onBaseChange = useCallback((code, val) => {
     setDirty((prev) => ({
       ...prev,
       permissions: { ...prev.permissions, [code]: val },
     }));
-  }
+  }, []);
 
-  function onMenuOverrideChange(menuSeq, code, val) {
+  const onMenuOverrideChange = useCallback((menuSeq, code, val) => {
     setDirty((prev) => ({
       ...prev,
       menuOverrides: {
@@ -292,50 +346,60 @@ export default function EditApp({ onExit }) {
         [menuSeq]: { ...(prev.menuOverrides[menuSeq] ?? {}), [code]: val },
       },
     }));
-  }
+  }, []);
 
   // 메뉴 이름 / 상세 권한 이름 override — menus.json은 재수집 시 통째로 갈아끼워지므로
   // 이 이름 편집만은 helpTexts.js(menuTitles/permissionNames)에 별도 보관해 재수집을 견딘다.
-  function currentMenuTitle(nodeId) {
-    if (nodeId in dirty.menuTitles) return dirty.menuTitles[nodeId] ?? "";
-    if (HELP_TEXTS.menuTitles?.[nodeId] != null)
-      return HELP_TEXTS.menuTitles[nodeId];
-    return draftMenus.find((m) => m.nodeId === nodeId)?.title ?? "";
-  }
+  const currentMenuTitle = useCallback(
+    (nodeId) => {
+      if (nodeId in dirty.menuTitles) return dirty.menuTitles[nodeId] ?? "";
+      if (HELP_TEXTS.menuTitles?.[nodeId] != null)
+        return HELP_TEXTS.menuTitles[nodeId];
+      return draftMenusByNodeId.get(nodeId)?.title ?? "";
+    },
+    [dirty.menuTitles, draftMenusByNodeId],
+  );
 
-  function onMenuTitleChange(nodeId, val) {
+  const onMenuTitleChange = useCallback((nodeId, val) => {
     setDirty((prev) => ({
       ...prev,
       menuTitles: { ...prev.menuTitles, [nodeId]: val },
     }));
-  }
+  }, []);
 
-  function currentPermLabel(code) {
-    if (code in dirty.permissionNames) return dirty.permissionNames[code] ?? "";
-    if (HELP_TEXTS.permissionNames?.[code] != null)
-      return HELP_TEXTS.permissionNames[code];
-    return draftLeaves.find((l) => l.code === code)?.label ?? code;
-  }
+  const currentPermLabel = useCallback(
+    (code) => {
+      if (code in dirty.permissionNames)
+        return dirty.permissionNames[code] ?? "";
+      if (HELP_TEXTS.permissionNames?.[code] != null)
+        return HELP_TEXTS.permissionNames[code];
+      return draftLeavesByCode.get(code)?.label ?? code;
+    },
+    [dirty.permissionNames, draftLeavesByCode],
+  );
 
-  function onPermLabelChange(code, val) {
+  const onPermLabelChange = useCallback((code, val) => {
     setDirty((prev) => ({
       ...prev,
       permissionNames: { ...prev.permissionNames, [code]: val },
     }));
-  }
+  }, []);
 
   // menuDescs helpers
-  function currentMenuDesc(menuSeq) {
-    const key = String(menuSeq);
-    if (key in dirtyMenuDescs) return dirtyMenuDescs[key] ?? "";
-    if (HELP_TEXTS.menuDescriptions && key in HELP_TEXTS.menuDescriptions)
-      return HELP_TEXTS.menuDescriptions[key];
-    return MENUS_DATA.menus.find((m) => m.nodeId === menuSeq)?.label ?? "";
-  }
+  const currentMenuDesc = useCallback(
+    (menuSeq) => {
+      const key = String(menuSeq);
+      if (key in dirtyMenuDescs) return dirtyMenuDescs[key] ?? "";
+      if (HELP_TEXTS.menuDescriptions && key in HELP_TEXTS.menuDescriptions)
+        return HELP_TEXTS.menuDescriptions[key];
+      return menusDataByNodeId.get(menuSeq)?.label ?? "";
+    },
+    [dirtyMenuDescs, menusDataByNodeId],
+  );
 
-  function onMenuDescChange(menuSeq, val) {
+  const onMenuDescChange = useCallback((menuSeq, val) => {
     setDirtyMenuDescs((prev) => ({ ...prev, [String(menuSeq)]: val }));
-  }
+  }, []);
 
   // contact helpers
   function currentContactField(key) {
@@ -598,6 +662,7 @@ export default function EditApp({ onExit }) {
           HELP_TEXTS.menuDescriptions = fullMenuDescriptions;
           HELP_TEXTS.menuTitles = fullMenuTitles;
           HELP_TEXTS.permissionNames = fullPermissionNames;
+          setHelpTextsVersion((v) => v + 1);
           setDirty({
             permissions: {},
             menuOverrides: {},
@@ -1222,7 +1287,7 @@ export default function EditApp({ onExit }) {
           setDraftMenus={setDraftMenus}
           draftPerms={draftPerms}
           setDraftPerms={setDraftPerms}
-          markDirty={() => setIsDirtyMenuTree(true)}
+          markDirty={markMenuTreeDirty}
           currentBase={currentBase}
           onBaseChange={onBaseChange}
           currentMenuOverride={currentMenuOverride}
